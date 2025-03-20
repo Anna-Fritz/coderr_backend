@@ -19,7 +19,7 @@ class UserProfile(models.Model):
         abstract = True
 
 
-class BusinessUserProfile(UserProfile):
+class BusinessProfile(UserProfile):
     location = models.CharField(max_length=30)
     tel = models.CharField(max_length=25)
     description = models.TextField(max_length=250)
@@ -31,7 +31,7 @@ class BusinessUserProfile(UserProfile):
         return f"{self.first_name} {self.last_name} ({self.type})"
 
 
-class CustomerUserProfile(UserProfile):
+class CustomerProfile(UserProfile):
     type = models.CharField(max_length=25, default="customer", editable=False)
 
     def __str__(self):

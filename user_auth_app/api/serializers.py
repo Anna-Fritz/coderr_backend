@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from profiles_app.models import BusinessUserProfile, CustomerUserProfile
+from profiles_app.models import BusinessProfile, CustomerProfile
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -34,9 +34,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
 
         if type == 'customer':
-            CustomerUserProfile.objects.create(user=user)
+            CustomerProfile.objects.create(user=user)
         elif type == 'business':
-            BusinessUserProfile.objects.create(user=user)
+            BusinessProfile.objects.create(user=user)
 
         return user
 
