@@ -20,7 +20,8 @@ class LoginView(ObtainAuthToken):
                 return Response({
                     'token': token.key,
                     'username': user.username,
-                    'email': user.email
+                    'email': user.email,
+                    'user_id': user.id
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -41,7 +42,8 @@ class RegistrationView(APIView):
                 return Response({
                     'token': token.key,
                     'username': saved_account.username,
-                    'email': saved_account.email
+                    'email': saved_account.email,
+                    'user_id': saved_account.id
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

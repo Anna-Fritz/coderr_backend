@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from profiles_app.models import BusinessUserProfile, CustomerUserProfile
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
@@ -7,7 +8,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'repeated_password']
+        fields = ['username', 'email', 'password', 'repeated_password', 'type']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -19,13 +20,23 @@ class RegistrationSerializer(serializers.ModelSerializer):
         repeated_pw = data['repeated_password']
 
         if pw != repeated_pw:
-            raise serializers.ValidationError({'error': 'passwords do not match'})
+            raise serializers.ValidationError({'password': 'Passwörter stimmen nicht überein.'})
 
-        if User.objects.filter(email=data['email']).exists():
-            raise serializers.ValidationError({'email': 'Email already exists'})
+        if User.objects.filter(username=data['username']).exists():
+            raise serializers.ValidationError({'username': 'Ungültiger Username.'})
 
         return data
 
     def create(self, validated_data):
+        type = validated_data['type']
         validated_data.pop('repeated_password')
-        return User.objects.create_user(**validated_data)
+        validated_data.pop('type')
+        user = User.objects.create_user(**validated_data)
+
+        if type == 'customer':
+            CustomerUserProfile.objects.create(user=user)
+        elif type == 'business':
+            BusinessUserProfile.objects.create(user=user)
+
+        return user
+
