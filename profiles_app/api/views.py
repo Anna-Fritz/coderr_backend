@@ -4,7 +4,6 @@ from .serializers import CustomerProfileSerializer, BusinessProfileSerializer
 
 
 class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = BusinessProfile.objects.all()
     lookup_field = 'pk'
 
     def get_object(self):

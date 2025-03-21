@@ -7,7 +7,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', required=False)
     last_name = serializers.CharField(source='user.last_name', required=False)
     email = serializers.CharField(source='user.email')
-    type = serializers.CharField(read_only=True)
+    type = serializers.CharField(source='user.type')
 
     class Meta:
         model = CustomerProfile
@@ -42,8 +42,7 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', required=False)
     last_name = serializers.CharField(source='user.last_name', required=False)
     email = serializers.CharField(source='user.email')
-
-    type = serializers.CharField(read_only=True)
+    type = serializers.CharField(source='user.type')
 
     class Meta:
         model = BusinessProfile
