@@ -38,12 +38,12 @@ class RegistrationView(APIView):
         if serializer.is_valid():
             try:
                 saved_account = serializer.save()
-                token, _ = Token.objects.get_or_create(user=saved_account)
+                token, _ = Token.objects.get_or_create(user=saved_account.user)
                 return Response({
                     'token': token.key,
-                    'username': saved_account.username,
-                    'email': saved_account.email,
-                    'user_id': saved_account.id
+                    'username': saved_account.user.username,
+                    'email': saved_account.user.email,
+                    'user_id': saved_account.user.id
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

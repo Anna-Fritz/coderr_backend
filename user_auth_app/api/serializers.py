@@ -1,9 +1,11 @@
 from rest_framework import serializers
-from profiles_app.models import BusinessProfile, CustomerProfile, CustomUser
+from profiles_app.models import UserProfile
+from ..models import CustomUser
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
     repeated_password = serializers.CharField(write_only=True)
+    type = serializers.ChoiceField(choices=[('customer', 'Customer'), ('business', 'Business')])
 
     class Meta:
         model = CustomUser
@@ -27,19 +29,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        print(validated_data)
-        type = validated_data['type']
         validated_data.pop('repeated_password')
         user = CustomUser.objects.create_user(**validated_data)
 
-        self.create_user_profile(user, type)
+        type = validated_data.get('type')  # Beispielweise aus den Request-Daten holen
+        if type not in ['customer', 'business']:
+            raise serializers.ValidationError({'type': 'Ungültiger Benutzertyp.'})
 
-        return user
+        profile = UserProfile.objects.create(user=user, type=type)
 
-    def create_user_profile(self, user, type):
-        if type == 'customer':
-            return CustomerProfile.objects.create(user=user)
-        elif type == 'business':
-            return BusinessProfile.objects.create(user=user)
-        else:
-            raise serializers.ValidationError({'detail': 'Ungültiger Benutzertyp.'})
+        return profile
