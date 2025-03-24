@@ -1,31 +1,36 @@
 from rest_framework import generics
-from ..models import BusinessProfile, CustomerProfile
-from .serializers import CustomerProfileSerializer, BusinessProfileSerializer
+from rest_framework.response import Response
+from rest_framework import status
+from ..models import UserProfile
+from .serializers import BusinessProfileSerializer, CustomerProfileSerializer
 
 
 class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = UserProfile.objects.all()
+    serializer_class = BusinessProfileSerializer
     lookup_field = 'pk'
 
     def get_object(self):
 
         try:
-            return BusinessProfile.objects.get(pk=self.kwargs['pk'])
-        except BusinessProfile.DoesNotExist:
-            return CustomerProfile.objects.get(pk=self.kwargs['pk'])
+            return UserProfile.objects.get(user_id=self.kwargs['pk'])
+        except UserProfile.DoesNotExist:
+            raise Response({'error': 'Der Benutzer wurde nicht gefunden.'}, status=status.HTTP_404_NOT_FOUND)
 
     def get_serializer_class(self):
-        profile = self.get_object()
 
-        if profile.type == 'business':
+        user_profile = self.get_object()
+
+        if user_profile.type == 'business':
             return BusinessProfileSerializer
         return CustomerProfileSerializer
 
 
 class BusinessProfileListView(generics.ListAPIView):
-    queryset = BusinessProfile.objects.select_related('user').all()
+    queryset = UserProfile.objects.filter(type='business')
     serializer_class = BusinessProfileSerializer
 
 
 class CustomerProfileListView(generics.ListAPIView):
-    queryset = CustomerProfile.objects.select_related('user').all()
+    queryset = UserProfile.objects.filter(type='customer')
     serializer_class = CustomerProfileSerializer
