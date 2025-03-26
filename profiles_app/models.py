@@ -3,7 +3,6 @@ from django.core.validators import FileExtensionValidator
 from .api.utils import validate_file_size
 from django.utils import timezone
 from user_auth_app.models import CustomUser
-from django.conf import settings
 
 
 # Create your models here.
@@ -17,7 +16,7 @@ class UserProfile(models.Model):
     file = models.FileField(upload_to='profile-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'png']), validate_file_size], blank=True, null=True)
     uploaded_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
-    type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], editable=False)
+    type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], editable=False, null=False, blank=False)
     location = models.CharField(max_length=30, blank=True, null=True)
     tel = models.CharField(max_length=25, blank=True, null=True)
     description = models.TextField(max_length=250, blank=True, null=True)

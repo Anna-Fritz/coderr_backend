@@ -4,7 +4,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 
 # Create your models here.
 class CustomUser(AbstractUser):
-    type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')])
+    type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], null=False, blank=False)
 
     # Verwende related_name für die Reverse-Beziehungen
     groups = models.ManyToManyField(
