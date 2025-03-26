@@ -39,6 +39,11 @@ class ProfileDetailTests(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_get_not_existing_profile(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get("api/profile/999/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_user_cannot_retrieve_other_user_profile(self):
         self.client.force_authenticate(user=self.other_user)
         response = self.client.get(self.url)
@@ -68,4 +73,20 @@ class ProfileDetailTests(APITestCase):
         response = self.client.patch(self.url, update_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertNotEqual(self.profile.first_name, "ForeignUserName")
+
+    def test_user_cannot_delete_own_profile(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_cannot_delete_other_profile(self):
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admin_delete_user_profile(self):
+        admin_user = CustomUser.objects.create_superuser(username='adminuser', password='adminpassword')
+        self.client.force_authenticate(user=admin_user)
+        response = self.client.delete(self.url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
