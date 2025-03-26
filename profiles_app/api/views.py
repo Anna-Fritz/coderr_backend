@@ -3,11 +3,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from ..models import UserProfile
 from .serializers import BusinessProfileSerializer, CustomerProfileSerializer
+from .permissions import IsOwnerOrAdmin
 
 
 class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = UserProfile.objects.all()
     serializer_class = BusinessProfileSerializer
+    permission_classes = [IsOwnerOrAdmin]
     lookup_field = 'pk'
 
     def get_object(self):
