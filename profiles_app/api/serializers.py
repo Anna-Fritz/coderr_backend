@@ -64,7 +64,7 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
 
         if instance.file:
             file_url = instance.file.url
-            representation['file'] = file_url.replace("http://127.0.0.1:8000/", "media/")
+            representation['file'] = file_url.replace("http://127.0.0.1:8000", "media/")
         return representation
 
     def validate_file(self, value):
