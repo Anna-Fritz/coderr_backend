@@ -4,6 +4,8 @@ from rest_framework import status
 from user_auth_app.models import CustomUser
 from profiles_app.models import UserProfile
 from rest_framework.authtoken.models import Token
+from ..api.views import BusinessProfileListView, CustomerProfileListView
+from ..api.serializers import BusinessProfileSerializer, CustomerProfileSerializer
 
 
 class ProfileDetailTests(APITestCase):
@@ -89,4 +91,81 @@ class ProfileDetailTests(APITestCase):
         self.client.force_authenticate(user=admin_user)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class TypeProfileListTests(APITestCase):
+    def setUp(self):
+        self.business_user = CustomUser.objects.create_user(
+            username="testBusinessUser",
+            password="testpassword",
+            type="business"
+        )
+        self.business_profile = UserProfile.objects.create(
+            user=self.business_user,
+            type=self.business_user.type
+        )
+        self.customer_user = CustomUser.objects.create_user(
+            username="testCustomerUser",
+            password="testpassword",
+            type="customer"
+        )
+        self.customer_profile = UserProfile.objects.create(
+            user=self.customer_user,
+            type=self.customer_user.type
+        )
+
+        self.business_url = reverse('business-profile-list')
+        self.customer_url = reverse('customer-profile-list')
+
+    def test_get_profile_lists_authenticated(self):
+        self.client.force_authenticate(user=self.business_user)
+        response = self.client.get(self.business_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.get(self.customer_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_profile_lists_unauthenticated(self):
+        response = self.client.get(self.business_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        response = self.client.get(self.customer_url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_business_profiles(self):
+        self.client.force_authenticate(user=self.business_user)
+        response = self.client.get(self.business_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["type"], "business")
+
+        for profile in response.data:
+            self.assertNotEqual(profile["type"], "customer")
+
+    def test_get_customer_profiles(self):
+        self.client.force_authenticate(user=self.customer_user)
+        response = self.client.get(self.customer_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["type"], "customer")
+
+        for profile in response.data:
+            self.assertNotEqual(profile["type"], "business")
+
+    def test_business_profile_list_uses_correct_serializer(self):
+        view = BusinessProfileListView()
+        self.assertEqual(view.serializer_class, BusinessProfileSerializer)
+
+    def test_customer_profile_list_uses_correct_serializer(self):
+        view = CustomerProfileListView()
+        self.assertEqual(view.serializer_class, CustomerProfileSerializer)
+
+
+class EmptyProfileListTests(APIClient):
+    def test_get_empty_profile_lists(self):
+        self.client.force_authenticate(user=self.business_user)
+        response = self.client.get(self.business_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+        response = self.client.get(self.customer_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
 
