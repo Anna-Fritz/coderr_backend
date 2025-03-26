@@ -6,7 +6,7 @@ from ..api.serializers import BusinessProfileSerializer
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 
-class BusinessProfileSerializerTest(TestCase):
+class BusinessProfileSerializerTests(TestCase):
     def test_invalid_file_extension(self):
         invalid_file = SimpleUploadedFile("test_image.txt", b"file_content", content_type="text/plain")
         user = CustomUser.objects.create_user(username="testuser2", password="testpassword", type="business")

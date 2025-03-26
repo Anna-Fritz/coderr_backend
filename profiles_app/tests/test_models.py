@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 
-class UserProfileModelTest(TestCase):
+class UserProfileModelTests(TestCase):
     def setUp(self):
         self.test_media_root = tempfile.mkdtemp()
         settings.MEDIA_ROOT = self.test_media_root
