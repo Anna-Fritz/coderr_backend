@@ -3,6 +3,7 @@ from django.core.validators import FileExtensionValidator
 from .api.utils import validate_file_size
 from django.utils import timezone
 from user_auth_app.models import CustomUser
+from django.conf import settings
 
 
 # Create your models here.
@@ -13,7 +14,7 @@ class UserProfile(models.Model):
     first_name = models.CharField(max_length=15, blank=True, null=True)
     last_name = models.CharField(max_length=25, blank=True, null=True)
     email = models.EmailField(max_length=50, blank=True, null=True)
-    file = models.FileField(upload_to='uploads/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'png']), validate_file_size], blank=True, null=True)
+    file = models.FileField(upload_to='profile-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'png']), validate_file_size], blank=True, null=True)
     uploaded_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], editable=False)
@@ -34,6 +35,10 @@ class UserProfile(models.Model):
                 self.username = self.user.username
         if self.file and not self.uploaded_at:
             self.uploaded_at = timezone.now()
+        if self.file:
+            ext = self.file.name.split('.')[-1]
+            new_filename = f"profile_{self.user.id}_{self.user.username}.{ext}"
+            self.file.name = new_filename
         super(UserProfile, self).save(*args, **kwargs)
 
     def __str__(self):

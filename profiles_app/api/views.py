@@ -11,7 +11,6 @@ class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'pk'
 
     def get_object(self):
-
         try:
             return UserProfile.objects.get(user_id=self.kwargs['pk'])
         except UserProfile.DoesNotExist:
