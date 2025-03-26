@@ -1,9 +1,9 @@
 from rest_framework import serializers
 from ..models import UserProfile
+import os
 
 
 class BusinessProfileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'created_at', 'type', 'location', 'tel', 'description', 'working_hours', 'email']
@@ -19,6 +19,13 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
             file_url = instance.file.url
             representation['file'] = file_url.replace("http://127.0.0.1:8000/", "media/")
         return representation
+
+    def validate_file(self, value):
+        valid_extensions = ['.jpg', '.jpeg', '.png']
+        extension = os.path.splitext(value.name)[1].lower()
+        if extension not in valid_extensions:
+            raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are {', '.join(valid_extensions)}.")
+        return value
 
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', None)
@@ -59,6 +66,13 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             file_url = instance.file.url
             representation['file'] = file_url.replace("http://127.0.0.1:8000/", "media/")
         return representation
+
+    def validate_file(self, value):
+        valid_extensions = ['.jpg', '.jpeg', '.png']
+        extension = os.path.splitext(value.name)[1].lower()
+        if extension not in valid_extensions:
+            raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are {', '.join(valid_extensions)}.")
+        return value
 
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', None)

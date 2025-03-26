@@ -13,7 +13,7 @@ class UserProfile(models.Model):
     first_name = models.CharField(max_length=15, blank=True, null=True)
     last_name = models.CharField(max_length=25, blank=True, null=True)
     email = models.EmailField(max_length=50, blank=True, null=True)
-    file = models.FileField(upload_to='profile-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'png']), validate_file_size], blank=True, null=True)
+    file = models.FileField(upload_to='profile-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
     uploaded_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], editable=False, null=False, blank=False)
