@@ -81,7 +81,7 @@ class UserProfile(models.Model):
 @receiver(post_delete, sender=UserProfile)
 def delete_profile_file(sender, instance, **kwargs):
     """
-    Löscht die zugehörige Datei, wenn das UserProfile gelöscht wird.
+    Deletes the associated file from storage when a UserProfile instance is deleted.
     """
     if instance.file:
         file_path = instance.file.path
