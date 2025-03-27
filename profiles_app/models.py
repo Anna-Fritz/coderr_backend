@@ -3,9 +3,13 @@ from django.core.validators import FileExtensionValidator
 from .api.utils import validate_file_size
 from django.utils import timezone
 from user_auth_app.models import CustomUser
-
+import os
+from django.core.files.storage import default_storage
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 
 # Create your models here.
+
 
 class UserProfile(models.Model):
     """
@@ -27,7 +31,9 @@ class UserProfile(models.Model):
 
     def save(self, *args, **kwargs):
         """
-        Ensures certain fields are set based on the associated user and renames uploaded files for consistency.
+        Saves the UserProfile instance. Auto-fills missing fields (first name, last name, email, and username) 
+        from the associated user if not already provided. Handles file replacement by deleting the old file 
+        and renaming the new file, if necessary. Updates the uploaded_at timestamp when the file is updated.
         """
         if self.user:
             if not self.first_name:
@@ -38,13 +44,47 @@ class UserProfile(models.Model):
                 self.email = self.user.email
             if not self.username:
                 self.username = self.user.username
-        if self.file and not self.uploaded_at:
-            self.uploaded_at = timezone.now()
-        if self.file:
-            ext = self.file.name.split('.')[-1]
-            new_filename = f"profile_{self.user.id}_{self.user.username}.{ext}"
-            self.file.name = new_filename
+        if self.id:
+            original = UserProfile.objects.get(pk=self.id)
+            if original.file.name != self.file.name:  # Check if the file has been changed
+                # If the file is changed, delete the old file
+                if original.file:
+                    old_file_path = original.file.path
+                    if os.path.exists(old_file_path):
+                        default_storage.delete(old_file_path)
+                    self.update_file()
+            if self.file and self.uploaded_at is None:
+                self.update_file()
         super(UserProfile, self).save(*args, **kwargs)
+
+    def update_file(self):
+        """
+        Renames the uploaded file to a consistent format using the user's ID and username, 
+        and updates the uploaded_at timestamp to the current time.
+        """
+        ext = self.file.name.split('.')[-1]
+        new_filename = f"profile_{self.user.id}_{self.user.username}.{ext}"
+        self.file.name = new_filename
+        self.uploaded_at = timezone.now()
+
+    def delete(self, *args, **kwargs):
+        if self.file:
+            file_path = self.file.path
+            if os.path.exists(file_path):
+                default_storage.delete(file_path)
+        super().delete(*args, **kwargs)
 
     def __str__(self):
         return f"{self.username}, {self.first_name} {self.last_name} ({self.type})"
+
+
+@receiver(post_delete, sender=UserProfile)
+def delete_profile_file(sender, instance, **kwargs):
+    """
+    Löscht die zugehörige Datei, wenn das UserProfile gelöscht wird.
+    """
+    if instance.file:
+        file_path = instance.file.path
+        if os.path.exists(file_path):
+            default_storage.delete(file_path)
+
