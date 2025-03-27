@@ -8,6 +8,7 @@ class CustomUserModelTests(TestCase):
     """
     Test suite for testing the CustomUser model's behavior and validations.
     """
+
     def test_create_user_successfully(self):
         """
         Test case to verify that a user can be created successfully with valid data 

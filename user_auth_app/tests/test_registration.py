@@ -39,8 +39,7 @@ class RegistrationSerializerTests(TestCase):
 
     def test_passwords_must_match(self):
         """
-        Test case to ensure that an error is raised when the password and repeated password 
-        fields do not match.
+        Test case to ensure that an error is raised when the password and repeated password fields do not match.
         """
         data = {
             "username": "newuser",
@@ -71,8 +70,7 @@ class RegistrationSerializerTests(TestCase):
 
     def test_invalid_type_choice(self):
         """
-        Test case to ensure that a ValidationError is raised if the 'type' field contains 
-        an invalid value.
+        Test case to ensure that a ValidationError is raised if the 'type' field contains an invalid value.
         """
         data = {
             "username": "newuser",
@@ -125,8 +123,7 @@ class RegistrationViewTests(TestCase):
 
     def test_successful_registration(self):
         """
-        Test case to verify that the registration API responds with success and the appropriate 
-        user and profile are created.
+        Test case to verify that the registration API responds with success and the appropriate user and profile are created.
         """
         response = self.client.post(self.register_url, self.valid_data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

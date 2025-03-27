@@ -8,11 +8,16 @@ from rest_framework.authtoken.views import ObtainAuthToken
 
 
 class LoginView(ObtainAuthToken):
+    """
+    The view validates the provided credentials and generates an authentication token if the login is successful.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """
+        Handles user authentication and token generation.
+        """
         serializer = self.serializer_class(data=request.data)
-
         if serializer.is_valid():
             try:
                 user = serializer.validated_data['user']
@@ -25,16 +30,18 @@ class LoginView(ObtainAuthToken):
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RegistrationView(APIView):
+    """
+    The view validates the input data, creates a new user and associated user profile, and returns a token 
+    for the newly created user upon successful registration.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
         serializer = RegistrationSerializer(data=request.data)
-
         if serializer.is_valid():
             try:
                 saved_account = serializer.save()
@@ -47,5 +54,4 @@ class RegistrationView(APIView):
                 }, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

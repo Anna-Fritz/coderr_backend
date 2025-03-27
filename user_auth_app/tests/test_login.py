@@ -7,6 +7,7 @@ class LoginViewTests(APITestCase):
     """
     Test suite for LoginView to verify login functionality and error handling.
     """
+
     def setUp(self):
         """
         Sets up the initial test environment by creating a test user and defining valid login credentials.
