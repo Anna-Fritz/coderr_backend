@@ -8,6 +8,9 @@ from user_auth_app.models import CustomUser
 # Create your models here.
 
 class UserProfile(models.Model):
+    """
+    Extends the CustomUser model with additional profile details.
+    """
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
     username = models.CharField(max_length=150, blank=True, null=True)
     first_name = models.CharField(max_length=15, blank=True, null=True)
@@ -23,6 +26,9 @@ class UserProfile(models.Model):
     working_hours = models.CharField(max_length=15, blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        """
+        Ensures certain fields are set based on the associated user and renames uploaded files for consistency.
+        """
         if self.user:
             if not self.first_name:
                 self.first_name = self.user.first_name

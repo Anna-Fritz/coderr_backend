@@ -4,6 +4,9 @@ import os
 
 
 class BusinessProfileSerializer(serializers.ModelSerializer):
+    """
+    Handles validation, representation, and updating of business-related profile information.
+    """
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'created_at', 'type', 'location', 'tel', 'description', 'working_hours', 'email']
@@ -13,6 +16,9 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
         }
 
     def to_representation(self, instance):
+        """
+        Customizes the representation of the profile to provide a file URL without the base URL.
+        """
         representation = super().to_representation(instance)
 
         if instance.file:
@@ -21,6 +27,9 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
         return representation
 
     def validate_file(self, value):
+        """
+        Validates that the uploaded file has an allowed extension (.jpg, .jpeg, .png).
+        """
         valid_extensions = ['.jpg', '.jpeg', '.png']
         extension = os.path.splitext(value.name)[1].lower()
         if extension not in valid_extensions:
@@ -28,6 +37,9 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
+        """
+        Updates the UserProfile instance with the validated data and updates the associated User instance.
+        """
         user_data = validated_data.pop('user', None)
 
         instance.first_name = validated_data.get('first_name', instance.first_name)
@@ -51,6 +63,9 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
 
 
 class CustomerProfileSerializer(serializers.ModelSerializer):
+    """
+    Handles validation, representation, and updating of customer-related profile information.
+    """
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'type', 'email', 'created_at']
@@ -60,6 +75,9 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         }
 
     def to_representation(self, instance):
+        """
+        Customizes the representation of the profile to provide a file URL without the base URL.
+        """
         representation = super().to_representation(instance)
 
         if instance.file:
@@ -68,6 +86,9 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         return representation
 
     def validate_file(self, value):
+        """
+        Validates that the uploaded file has an allowed extension (.jpg, .jpeg, .png).
+        """
         valid_extensions = ['.jpg', '.jpeg', '.png']
         extension = os.path.splitext(value.name)[1].lower()
         if extension not in valid_extensions:
@@ -75,6 +96,9 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         return value
 
     def update(self, instance, validated_data):
+        """
+        Updates the UserProfile instance with the validated data and updates the associated User instance.
+        """
         user_data = validated_data.pop('user', None)
 
         instance.first_name = validated_data.get('first_name', instance.first_name)
