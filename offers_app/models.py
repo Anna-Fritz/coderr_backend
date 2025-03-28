@@ -7,6 +7,7 @@ import os
 from django.core.files.storage import default_storage
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from django.utils.timezone import now
 
 
 # Create your models here.
@@ -15,40 +16,42 @@ class Offer(models.Model):
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to='profile-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
     description = models.CharField(max_length=255)
+    # details = models.JSONField(default=list)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    min_price = models.IntegerField()
-    min_delivery_time = models.IntegerField()
+    updated_at = models.DateTimeField(blank=True, null=True)
+    min_price = models.IntegerField(blank=True, null=True)
+    min_delivery_time = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.id:
             original = Offer.objects.get(pk=self.id)
-            if original.image.name != self.image.name:  # Check if the file has been changed
-                # If the file is changed, delete the old file
+            if original.image.name != self.image.name:  # Check if the image has been changed
+                # If the image is changed, delete the old image
                 if original.image:
-                    old_file_path = original.image.path
-                    if os.path.exists(old_file_path):
-                        default_storage.delete(old_file_path)
-                    self.update_file()
+                    old_image_path = original.image.path
+                    if os.path.exists(old_image_path):
+                        default_storage.delete(old_image_path)
+                    self.update_image()
             if self.image and self.updated_at is None:
-                self.update_file()
+                self.update_image()
+            self.updated_at = now()
         super(Offer, self).save(*args, **kwargs)
 
-    def update_file(self):
+    def update_image(self):
         """
-        Renames the uploaded file to a consistent format using the user's ID and username, 
+        Renames the uploaded image to a consistent format using the user's ID and username, 
         and updates the uploaded_at timestamp to the current time.
         """
         ext = self.image.name.split('.')[-1]
-        new_filename = f"user_{self.user.id}_{self.user.username}_offer_{self.id}.{ext}"
-        self.image.name = new_filename
+        new_image_name = f"user_{self.user.id}_{self.user.username}_offer_{self.id}.{ext}"
+        self.image.name = new_image_name
 
     def delete(self, *args, **kwargs):
         if self.image:
-            file_path = self.image.path
-            if os.path.exists(file_path):
-                default_storage.delete(file_path)
+            image_path = self.image.path
+            if os.path.exists(image_path):
+                default_storage.delete(image_path)
         super().delete(*args, **kwargs)
 
     def __str__(self):
@@ -56,24 +59,24 @@ class Offer(models.Model):
 
 
 @receiver(post_delete, sender=Offer)
-def delete_profile_file(sender, instance, **kwargs):
+def delete_offer_image(sender, instance, **kwargs):
     """
-    Deletes the associated file from storage when a UserProfile instance is deleted.
+    Deletes the associated image from storage when an Offer instance is deleted.
     """
-    if instance.file:
-        file_path = instance.file.path
-        if os.path.exists(file_path):
-            default_storage.delete(file_path)
+    if instance.image:
+        image_path = instance.image.path
+        if os.path.exists(image_path):
+            default_storage.delete(image_path)
 
 
-class Offerdetails(models.Model):
+class OfferDetail(models.Model):
+    offer = models.ForeignKey('Offer', related_name='details', on_delete=models.CASCADE)
     title = models.CharField(max_length=30)
     revisions = models.IntegerField()
     delivery_time_in_days = models.IntegerField()
     price = models.IntegerField()
     features = models.TextField(max_length=1000)
     offer_type = models.CharField(max_length=25, choices=[('basic', 'Basic'), ('standard', 'Standard'), ('premium', 'Premium')], editable=False, null=False, blank=False)
-    offer_id = models.ForeignKey(Offer, related_name="details", on_delete=models.CASCADE)
 
     def set_features(self, value):
         self.features = json.dumps(value)    # converts python-list of strings to json format
