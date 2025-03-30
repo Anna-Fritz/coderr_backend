@@ -20,8 +20,6 @@ class Offer(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True)
-    min_price = models.IntegerField(blank=True, null=True)
-    min_delivery_time = models.IntegerField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if self.id:
@@ -70,16 +68,10 @@ def delete_offer_image(sender, instance, **kwargs):
 
 
 class OfferDetail(models.Model):
-    offer = models.ForeignKey('Offer', related_name='details', on_delete=models.CASCADE)
+    offer = models.ForeignKey(Offer, related_name='details', on_delete=models.CASCADE)
     title = models.CharField(max_length=30)
     revisions = models.IntegerField()
     delivery_time_in_days = models.IntegerField()
     price = models.IntegerField()
-    features = models.TextField(max_length=1000)
+    features = models.JSONField(default=list)
     offer_type = models.CharField(max_length=25, choices=[('basic', 'Basic'), ('standard', 'Standard'), ('premium', 'Premium')], editable=False, null=False, blank=False)
-
-    def set_features(self, value):
-        self.features = json.dumps(value)    # converts python-list of strings to json format
-
-    def get_features(self):
-        return json.loads(self.features)     # converts json data back to python-list of strings
