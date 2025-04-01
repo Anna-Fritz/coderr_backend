@@ -14,7 +14,7 @@ from django.utils.timezone import now
 
 class Offer(models.Model):
     title = models.CharField(max_length=50)
-    image = models.FileField(upload_to='profile-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
+    image = models.FileField(upload_to='offer-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
     description = models.CharField(max_length=255)
     # details = models.JSONField(default=list)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
@@ -74,4 +74,4 @@ class OfferDetail(models.Model):
     delivery_time_in_days = models.IntegerField()
     price = models.IntegerField()
     features = models.JSONField(default=list)
-    offer_type = models.CharField(max_length=25, choices=[('basic', 'Basic'), ('standard', 'Standard'), ('premium', 'Premium')], editable=False, null=False, blank=False)
+    offer_type = models.CharField(max_length=25, choices=[('basic', 'Basic'), ('standard', 'Standard'), ('premium', 'Premium')])
