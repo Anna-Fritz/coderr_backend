@@ -2,17 +2,26 @@ from rest_framework import serializers
 from ..models import Offer, OfferDetail
 from rest_framework.reverse import reverse
 from django.db.models import Min
+import os
 
 
 class OfferDetailSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = OfferDetail
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
 
 
-class OfferSerializer(serializers.ModelSerializer):   # POST / PUT
-    # user_details = serializers.SerializerMethodField()
+class OfferDetailUpdateSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+
+    class Meta:
+        model = OfferDetail
+        fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
+
+
+class OfferCreateSerializer(serializers.ModelSerializer):
     details = OfferDetailSerializer(many=True)
 
     class Meta:
@@ -23,30 +32,74 @@ class OfferSerializer(serializers.ModelSerializer):   # POST / PUT
         user = self.context['request'].user
         validated_data['user'] = user
 
-        details_data = validated_data.pop('details', None)  # Holt die Details-Daten
-        offer = Offer.objects.create(**validated_data)  # Erstellt das Angebot
-        for detail in details_data:
-            # Erstellt für jedes Detail einen OfferDetail-Eintrag
-            OfferDetail.objects.create(offer=offer, **detail)
+        details_data = validated_data.pop('details', None)
+        offer = Offer.objects.create(**validated_data)
+
+        if details_data:
+            OfferDetail.objects.bulk_create([
+                OfferDetail(offer=offer, **detail) for detail in details_data
+            ])
         return offer
 
-        # return super().create(validated_data)
+    def validate_image(self, value):
+        """
+        Validates that the uploaded image has an allowed extension (.jpg, .jpeg, .png).
+        """
+        valid_extensions = ['.jpg', '.jpeg', '.png']
+        extension = os.path.splitext(value.name)[1].lower()
+        if extension not in valid_extensions:
+            raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are {', '.join(valid_extensions)}.")
+        return value
+
+
+class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
+    details = OfferDetailUpdateSerializer(many=True)
+
+    class Meta:
+        model = Offer
+        fields = ['id', 'title', 'image', 'description', 'details']
+
+    def validate_image(self, value):
+        """
+        Validates that the uploaded image has an allowed extension (.jpg, .jpeg, .png).
+        """
+        valid_extensions = ['.jpg', '.jpeg', '.png']
+        extension = os.path.splitext(value.name)[1].lower()
+        if extension not in valid_extensions:
+            raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are {', '.join(valid_extensions)}.")
+        return value
 
     def update(self, instance, validated_data):
-        details_data = validated_data.pop('details')  # Holt die Details-Daten
+        details_data = validated_data.pop('details', None)
+        image = validated_data.pop('image', None)
         instance = super().update(instance, validated_data)
 
-        # Löscht alte OfferDetail und erstellt sie erneut
-        instance.details.all().delete()
-        for detail in details_data:
-            OfferDetail.objects.create(offer=instance, **detail)
+        if image:
+            instance.image = image
+            instance.save()
 
+        if details_data:
+            for detail_data in details_data:
+                detail_id = detail_data.get('id', None)
+                if detail_id:
+                    try:
+                        detail_instance = OfferDetail.objects.get(id=detail_id)
+                        detail_instance.title = detail_data.get('title')
+                        detail_instance.revisions = detail_data.get('revisions')
+                        detail_instance.delivery_time_in_days = detail_data.get('delivery_time_in_days')
+                        detail_instance.price = detail_data.get('price')
+                        detail_instance.features = detail_data.get('features')
+                        detail_instance.save()
+                    except OfferDetail.DoesNotExist:
+                        raise serializers.ValidationError(f"OfferDetail with id {detail_id} does not exist.")
+                else:
+                    raise serializers.ValidationError("ID for OfferDetail must be provided.")
         return instance
 
 
 class OfferListSerializer(serializers.ModelSerializer):  # GET List
     details = serializers.SerializerMethodField()
-    min_price = serializers.SerializerMethodField()
+    min_price = serializers.IntegerField()
     min_delivery_time = serializers.SerializerMethodField()
     user_details = serializers.SerializerMethodField()
 
@@ -54,7 +107,7 @@ class OfferListSerializer(serializers.ModelSerializer):  # GET List
         model = Offer
         fields = ['id', 'user', 'title', 'image', 'description', 'created_at', 'updated_at', 'details', 'min_price', 'min_delivery_time', 'user_details']
         extra_kwargs = {
-            'user': {'read_only': True}
+            'user': {'read_only': True},
         }
 
     def get_user_details(self, obj):
@@ -75,7 +128,7 @@ class OfferListSerializer(serializers.ModelSerializer):  # GET List
         ]
 
     def get_min_price(self, obj):
-        return obj.details.aggregate(Min("price"))["price__min"]
+        return obj.details.aggregate(Min("price"))["price__min"] or 0
 
     def get_min_delivery_time(self, obj):
         return obj.details.aggregate(Min("delivery_time_in_days"))["delivery_time_in_days__min"]
