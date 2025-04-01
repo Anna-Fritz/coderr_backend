@@ -9,6 +9,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from .pagination import LargeResultsSetPagination
 from .filters import OfferFilter
 from django.db.models import Min, Max
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsOwnerOrAdminOrReadOnly
 
 
 class OfferViewSet(viewsets.ModelViewSet):
@@ -19,6 +21,7 @@ class OfferViewSet(viewsets.ModelViewSet):
     pagination_class = LargeResultsSetPagination
     queryset = Offer.objects.all()
     serializer_class = OfferListSerializer
+    permission_classes = [IsAuthenticated, IsOwnerOrAdminOrReadOnly]
 
     def get_queryset(self):
         """
@@ -65,4 +68,3 @@ class OfferViewSet(viewsets.ModelViewSet):
 class OfferDetailDetailView(generics.RetrieveAPIView):
     queryset = OfferDetail.objects.all()
     serializer_class = OfferDetailSerializer
-    permission_classes = [AllowAny]
