@@ -3,7 +3,8 @@ import tempfile
 from django.conf import settings
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from offers_app.models import Offer, CustomUser
+from offers_app.models import Offer, CustomUser, OfferDetail
+from django.core.exceptions import ValidationError
 
 
 class OfferModelTests(TestCase):
@@ -77,4 +78,127 @@ class OfferModelTests(TestCase):
         import shutil
         if os.path.exists(self.test_media_root):
             shutil.rmtree(self.test_media_root)
+
+
+class OfferDetailModelTests(TestCase):
+    """Test suite for the OfferDetail model."""
+
+    def setUp(self):
+        """Create a test user and offer for OfferDetail."""
+        self.user = CustomUser.objects.create_user(username="testuser", password="testpassword")
+        self.offer = Offer.objects.create(title="Test Offer", description="Test Description", user=self.user)
+
+    def test_create_offer_detail(self):
+        """Test if an OfferDetail can be created and saved properly."""
+        offer_detail = OfferDetail.objects.create(
+            offer=self.offer,
+            title="Basic Package",
+            revisions=2,
+            delivery_time_in_days=5,
+            price=100,
+            features=["Fast delivery", "Unlimited revisions"],
+            offer_type="basic"
+        )
+        self.assertEqual(OfferDetail.objects.count(), 1)
+        self.assertEqual(offer_detail.offer, self.offer)
+        self.assertEqual(offer_detail.title, "Basic Package")
+        self.assertEqual(offer_detail.revisions, 2)
+        self.assertEqual(offer_detail.delivery_time_in_days, 5)
+        self.assertEqual(offer_detail.price, 100)
+        self.assertEqual(offer_detail.features, ["Fast delivery", "Unlimited revisions"])
+        self.assertEqual(offer_detail.offer_type, "basic")
+
+    def test_invalid_offer_type(self):
+        """Test that an invalid offer_type raises an error."""
+        with self.assertRaises(ValidationError):
+            OfferDetail.objects.create(
+                offer=self.offer,
+                title="Invalid Package",
+                revisions=1,
+                delivery_time_in_days=3,
+                price=50,
+                features=["Test feature"],
+                offer_type="gold"  # Unvalid type
+            )
+
+    def test_negative_price_not_allowed(self):
+        """Ensure negative prices are not allowed."""
+        with self.assertRaises(ValidationError):
+            OfferDetail.objects.create(
+                offer=self.offer,
+                title="Invalid Price",
+                revisions=1,
+                delivery_time_in_days=3,
+                price=-10,  # Unvalid
+                features=["Invalid feature"],
+                offer_type="basic"
+            )
+
+    def test_negative_revisions_not_allowed(self):
+        """Ensure that revisions cannot be negative, except of -1 for unlimited revisions."""
+        with self.assertRaises(ValidationError):
+            OfferDetail.objects.create(
+                offer=self.offer,
+                title="Invalid Price",
+                revisions=-2,  # Unvalid
+                delivery_time_in_days=3,
+                price=50,
+                features=["Invalid feature"],
+                offer_type="basic"
+            )
+
+    def test_delete_offer_cascade(self):
+        """Ensure OfferDetail entries are deleted when the related Offer is deleted."""
+        OfferDetail.objects.create(
+            offer=self.offer,
+            title="Test Package",
+            revisions=2,
+            delivery_time_in_days=5,
+            price=100,
+            features=["Feature A", "Feature B"],
+            offer_type="basic"
+        )
+        self.assertEqual(OfferDetail.objects.count(), 1)
+        self.offer.delete()
+        self.assertEqual(OfferDetail.objects.count(), 0)
+
+    def test_json_field_stores_list(self):
+        """Ensure JSONField correctly stores and retrieves a list."""
+        offer_detail = OfferDetail.objects.create(
+            offer=self.offer,
+            title="JSON Test",
+            revisions=1,
+            delivery_time_in_days=2,
+            price=99,
+            features=["Feature 1", "Feature 2"],
+            offer_type="standard"
+        )
+        self.assertIsInstance(offer_detail.features, list)
+        self.assertEqual(offer_detail.features, ["Feature 1", "Feature 2"])
+
+    def test_json_field_default_value(self):
+        """Ensure JSONField default value is an empty list."""
+        offer_detail = OfferDetail.objects.create(
+            offer=self.offer,
+            title="No Features",
+            revisions=1,
+            delivery_time_in_days=2,
+            price=99,
+            offer_type="standard"
+        )
+        self.assertEqual(offer_detail.features, [])
+
+    def test_offer_detail_relationship(self):
+        """Ensure OfferDetail entries are correctly linked to an Offer."""
+        offer = Offer.objects.create(title="Main Offer", description="Main Description", user=self.user)
+        detail1 = OfferDetail.objects.create(
+            offer=offer, title="Basic", revisions=2, delivery_time_in_days=5, price=50, offer_type="basic"
+        )
+        detail2 = OfferDetail.objects.create(
+            offer=offer, title="Premium", revisions=5, delivery_time_in_days=3, price=150, offer_type="premium"
+        )
+
+        self.assertEqual(offer.details.count(), 2)
+        self.assertIn(detail1, offer.details.all())
+        self.assertIn(detail2, offer.details.all())
 

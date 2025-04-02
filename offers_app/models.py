@@ -1,5 +1,4 @@
 from django.db import models
-import json
 from django.core.validators import FileExtensionValidator
 from .api.utils import validate_file_size
 from user_auth_app.models import CustomUser
@@ -8,6 +7,7 @@ from django.core.files.storage import default_storage
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.utils.timezone import now
+from django.core.validators import MinValueValidator
 
 
 # Create your models here.
@@ -69,8 +69,15 @@ def delete_offer_image(sender, instance, **kwargs):
 class OfferDetail(models.Model):
     offer = models.ForeignKey(Offer, related_name='details', on_delete=models.CASCADE)
     title = models.CharField(max_length=30)
-    revisions = models.IntegerField()
-    delivery_time_in_days = models.IntegerField()
-    price = models.IntegerField()
-    features = models.JSONField(default=list)
+    revisions = models.IntegerField(validators=[MinValueValidator(-1)])
+    delivery_time_in_days = models.PositiveSmallIntegerField()
+    price = models.IntegerField(validators=[MinValueValidator(0)])
+    features = models.JSONField(default=list, blank=True)
     offer_type = models.CharField(max_length=25, choices=[('basic', 'Basic'), ('standard', 'Standard'), ('premium', 'Premium')])
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        valid_types = dict(self._meta.get_field("offer_type").choices)
+        if self.offer_type not in valid_types:
+            raise ValueError(f"Invalid offer_type: {self.offer_type}")
+        super().save(*args, **kwargs)
