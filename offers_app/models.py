@@ -16,12 +16,13 @@ class Offer(models.Model):
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to='offer-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
     description = models.CharField(max_length=255)
-    # details = models.JSONField(default=list)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
+        if self.image:
+            self.update_image()
         if self.id:
             original = Offer.objects.get(pk=self.id)
             if original.image.name != self.image.name:  # Check if the image has been changed
@@ -31,8 +32,6 @@ class Offer(models.Model):
                     if os.path.exists(old_image_path):
                         default_storage.delete(old_image_path)
                     self.update_image()
-            if self.image and self.updated_at is None:
-                self.update_image()
             self.updated_at = now()
         super(Offer, self).save(*args, **kwargs)
 
