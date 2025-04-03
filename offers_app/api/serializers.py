@@ -69,6 +69,17 @@ class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
             raise serializers.ValidationError(f"Invalid file extension. Allowed extensions are {', '.join(valid_extensions)}.")
         return value
 
+    def validate_details(self, value):
+        """Ensure that the details reference valid OfferDetail instances."""
+        for detail in value:
+            detail_id = detail.get('id')
+            if detail_id:
+                if not OfferDetail.objects.filter(id=detail_id).exists():
+                    raise serializers.ValidationError(f"OfferDetail with id {detail_id} does not exist.")
+            else:
+                raise serializers.ValidationError("ID for OfferDetail must be provided.")
+        return value
+
     def update(self, instance, validated_data):
         details_data = validated_data.pop('details', None)
         image = validated_data.pop('image', None)
@@ -97,43 +108,6 @@ class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
         return instance
 
 
-class OfferListSerializer(serializers.ModelSerializer):  # GET List
-    details = serializers.SerializerMethodField()
-    min_price = serializers.IntegerField()
-    min_delivery_time = serializers.SerializerMethodField()
-    user_details = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Offer
-        fields = ['id', 'user', 'title', 'image', 'description', 'created_at', 'updated_at', 'details', 'min_price', 'min_delivery_time', 'user_details']
-        extra_kwargs = {
-            'user': {'read_only': True},
-        }
-
-    def get_user_details(self, obj):
-        return {
-            "first_name": obj.user.first_name,
-            "last_name": obj.user.last_name,
-            "username": obj.user.username
-        }
-
-    def get_details(self, obj):
-        request = self.context.get('request')
-        return [
-            {
-                "id": detail.id,
-                "url": request.build_absolute_uri(reverse("offerdetails-detail", args=[detail.id]))
-            }
-            for detail in obj.details.all()
-        ]
-
-    def get_min_price(self, obj):
-        return obj.details.aggregate(Min("price"))["price__min"] or 0
-
-    def get_min_delivery_time(self, obj):
-        return obj.details.aggregate(Min("delivery_time_in_days"))["delivery_time_in_days__min"]
-
-
 class OfferDetailViewSerializer(serializers.ModelSerializer):   # GET Retrieve
     details = serializers.SerializerMethodField()
     min_price = serializers.SerializerMethodField()
@@ -159,3 +133,20 @@ class OfferDetailViewSerializer(serializers.ModelSerializer):   # GET Retrieve
     def get_min_delivery_time(self, obj):
         return obj.details.aggregate(Min("delivery_time_in_days"))["delivery_time_in_days__min"]
 
+
+class OfferListSerializer(OfferDetailViewSerializer):  # GET List
+    user_details = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Offer
+        fields = ['id', 'user', 'title', 'image', 'description', 'created_at', 'updated_at', 'details', 'min_price', 'min_delivery_time', 'user_details']
+        extra_kwargs = {
+            'user': {'read_only': True},
+        }
+
+    def get_user_details(self, obj):
+        return {
+            "first_name": obj.user.first_name,
+            "last_name": obj.user.last_name,
+            "username": obj.user.username
+        }
