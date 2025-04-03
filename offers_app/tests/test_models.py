@@ -1,10 +1,12 @@
 import os
 import tempfile
+
 from django.conf import settings
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
-from offers_app.models import Offer, CustomUser, OfferDetail
 from django.core.exceptions import ValidationError
+
+from offers_app.models import Offer, CustomUser, OfferDetail
 
 
 class OfferModelTests(TestCase):
