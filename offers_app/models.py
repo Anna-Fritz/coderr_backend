@@ -16,7 +16,7 @@ class Offer(models.Model):
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to='offer-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
     description = models.CharField(max_length=255)
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, related_name='offers', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(blank=True, null=True)
 
@@ -71,7 +71,7 @@ class OfferDetail(models.Model):
     title = models.CharField(max_length=30)
     revisions = models.IntegerField(validators=[MinValueValidator(-1)])
     delivery_time_in_days = models.PositiveSmallIntegerField()
-    price = models.IntegerField(validators=[MinValueValidator(0)])
+    price = models.PositiveIntegerField()
     features = models.JSONField(default=list, blank=True)
     offer_type = models.CharField(max_length=25, choices=[('basic', 'Basic'), ('standard', 'Standard'), ('premium', 'Premium')])
 
