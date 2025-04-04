@@ -4,13 +4,13 @@ from rest_framework.response import Response
 
 from ..models import Order
 from .serializers import OrderSerializer
-from .permissions import IsCustomerOrAdminOrReadOnly
+from .permissions import IsUserTypeOrAdminOrReadOnly
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated, IsCustomerOrAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsUserTypeOrAdminOrReadOnly]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)  # check if request is PATCH
