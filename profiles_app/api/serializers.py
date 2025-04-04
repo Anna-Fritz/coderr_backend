@@ -7,6 +7,8 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
     """
     Handles validation, representation, and updating of business-related profile information.
     """
+    user = serializers.SerializerMethodField()
+
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'created_at', 'type', 'location', 'tel', 'description', 'working_hours', 'email']
@@ -14,6 +16,9 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
             'file': {'required': False},
             'uploaded_at': {'required': False},
         }
+
+    def get_user(self, obj):
+        return {"pk": obj.user.pk}
 
     def to_representation(self, instance):
         """
@@ -66,6 +71,8 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
     """
     Handles validation, representation, and updating of customer-related profile information.
     """
+    user = serializers.SerializerMethodField()
+
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'type', 'email', 'created_at']
@@ -73,6 +80,9 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             'file': {'required': False},
             'uploaded_at': {'required': False},
         }
+
+    def get_user(self, obj):
+        return {"pk": obj.user.pk}
 
     def to_representation(self, instance):
         """
