@@ -14,8 +14,8 @@ class OrderStatus(models.TextChoices):
 
 
 class Order(models.Model):
-    customer_user = models.ForeignKey(CustomUser, related_name="customer_orders", on_delete=models.CASCADE)
-    business_user = models.ForeignKey(CustomUser, related_name="business_orders", on_delete=models.CASCADE)
+    customer_user = models.ForeignKey(CustomUser, related_name="customer_orders", on_delete=models.SET_NULL, null=True)
+    business_user = models.ForeignKey(CustomUser, related_name="business_orders", on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=30)
     revisions = models.IntegerField(validators=[MinValueValidator(-1)])
     delivery_time_in_days = models.PositiveSmallIntegerField()
