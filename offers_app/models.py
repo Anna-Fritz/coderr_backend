@@ -6,7 +6,6 @@ import os
 from django.core.files.storage import default_storage
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
-from django.utils.timezone import now
 from django.core.validators import MinValueValidator
 
 
@@ -18,7 +17,7 @@ class Offer(models.Model):
     description = models.CharField(max_length=255)
     user = models.ForeignKey(CustomUser, related_name='offers', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if self.image:
@@ -32,7 +31,6 @@ class Offer(models.Model):
                     if os.path.exists(old_image_path):
                         default_storage.delete(old_image_path)
                     self.update_image()
-            self.updated_at = now()
         super(Offer, self).save(*args, **kwargs)
 
     def update_image(self):
