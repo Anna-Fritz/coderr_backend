@@ -35,6 +35,18 @@ class UserProfile(models.Model):
         from the associated user if not already provided. Handles file replacement by deleting the old file 
         and renaming the new file, if necessary. Updates the uploaded_at timestamp when the file is updated.
         """
+        if self.id:
+            original = UserProfile.objects.get(pk=self.id)
+            if original.file.name != self.file.name:  # Check if the file has been changed
+                # If the file is changed, delete the old file
+                if original.file:
+                    old_file_path = original.file.path
+                    if os.path.exists(old_file_path):
+                        default_storage.delete(old_file_path)
+                    self.update_file()
+            if self.file and self.uploaded_at is None:
+                self.update_file()
+
         if self.user:
             if not self.first_name:
                 self.first_name = self.user.first_name
@@ -55,20 +67,11 @@ class UserProfile(models.Model):
             if self.email != self.user.email:
                 self.user.email = self.email
                 changed = True
+            if self.file != self.user.file:
+                self.user.file = self.file
+                changed = True
             if changed:
                 self.user.save()
-
-        if self.id:
-            original = UserProfile.objects.get(pk=self.id)
-            if original.file.name != self.file.name:  # Check if the file has been changed
-                # If the file is changed, delete the old file
-                if original.file:
-                    old_file_path = original.file.path
-                    if os.path.exists(old_file_path):
-                        default_storage.delete(old_file_path)
-                    self.update_file()
-            if self.file and self.uploaded_at is None:
-                self.update_file()
         super(UserProfile, self).save(*args, **kwargs)
 
     def update_file(self):

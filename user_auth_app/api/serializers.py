@@ -49,4 +49,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['pk', 'username', 'first_name', 'last_name', 'email']
+        fields = ['pk', 'username', 'first_name', 'last_name', 'email', 'file']
+
+    def to_representation(self, instance):
+        """
+        Customizes the representation of the profile to provide a file URL without the base URL.
+        """
+        representation = super().to_representation(instance)
+
+        if instance.file:
+            file_url = instance.file.url
+            representation['file'] = file_url.replace("http://127.0.0.1:8000/", "media/")
+        return representation
+

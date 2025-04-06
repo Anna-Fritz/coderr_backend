@@ -10,6 +10,7 @@ class CustomUser(AbstractUser):
     """
 
     type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], null=False, blank=False)
+    file = models.FileField(blank=True, null=True)
 
     groups = models.ManyToManyField(
         Group,
