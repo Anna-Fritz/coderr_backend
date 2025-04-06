@@ -44,6 +44,20 @@ class UserProfile(models.Model):
                 self.email = self.user.email
             if not self.username:
                 self.username = self.user.username
+
+            changed = False
+            if self.first_name != self.user.first_name:
+                self.user.first_name = self.first_name
+                changed = True
+            if self.last_name != self.user.last_name:
+                self.user.last_name = self.last_name
+                changed = True
+            if self.email != self.user.email:
+                self.user.email = self.email
+                changed = True
+            if changed:
+                self.user.save()
+
         if self.id:
             original = UserProfile.objects.get(pk=self.id)
             if original.file.name != self.file.name:  # Check if the file has been changed
