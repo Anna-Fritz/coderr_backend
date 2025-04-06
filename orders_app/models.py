@@ -2,7 +2,6 @@ from django.db import models
 from django.core.validators import MinValueValidator
 
 from user_auth_app.models import CustomUser
-from profiles_app.models import UserProfile
 
 # Create your models here.
 
@@ -31,11 +30,11 @@ class Order(models.Model):
         valid_types = dict(self._meta.get_field("offer_type").choices)
         if self.offer_type not in valid_types:
             raise ValueError(f"Invalid offer_type: {self.offer_type}")
-        
+
         valid_status_types = dict(self._meta.get_field("status").choices)
         if self.status not in valid_status_types:
             raise ValueError(f"Invalid status: {self.status}")
-        
+
         super().save(*args, **kwargs)
 
     def __str__(self):

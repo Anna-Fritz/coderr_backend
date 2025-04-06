@@ -1,8 +1,6 @@
 from rest_framework import serializers
-from django.shortcuts import get_object_or_404
 
 from ..models import Review
-from user_auth_app.models import CustomUser
 
 
 class ReviewSerializer(serializers.ModelSerializer):

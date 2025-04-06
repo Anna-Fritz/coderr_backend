@@ -50,7 +50,7 @@ class Offer(models.Model):
         super().delete(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.title}, {self.created_at} ({self.user.first_name})"
+        return f"Business User: {self.user.first_name} {self.user.last_name}, Offer: {self.id}"
 
 
 @receiver(post_delete, sender=Offer)
