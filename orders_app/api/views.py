@@ -8,13 +8,22 @@ from django.db.models import Count, Q
 from user_auth_app.models import CustomUser
 from ..models import Order
 from .serializers import OrderSerializer
-from .permissions import IsUserTypeOrAdminOrReadOnly
+from .permissions import IsCustomerOrBusinessUserOrAdmin
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated, IsUserTypeOrAdminOrReadOnly]
+    permission_classes = [IsAuthenticated, IsCustomerOrBusinessUserOrAdmin]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        if self.request.method == "GET":
+            queryset = queryset.filter(
+                Q(customer_user=self.request.user) | Q(business_user=self.request.user)
+            )
+        return queryset
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)  # check if request is PATCH
