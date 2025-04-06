@@ -1,14 +1,13 @@
 from rest_framework import serializers
 from ..models import UserProfile
 import os
+from user_auth_app.api.serializers import CustomUserSerializer
 
 
 class BusinessProfileSerializer(serializers.ModelSerializer):
     """
     Handles validation, representation, and updating of business-related profile information.
     """
-    user = serializers.SerializerMethodField()
-
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'created_at', 'type', 'location', 'tel', 'description', 'working_hours', 'email']
@@ -16,9 +15,6 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
             'file': {'required': False},
             'uploaded_at': {'required': False},
         }
-
-    def get_user(self, obj):
-        return {"pk": obj.user.pk}
 
     def to_representation(self, instance):
         """
@@ -45,8 +41,6 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
         """
         Updates the UserProfile instance with the validated data and updates the associated User instance.
         """
-        user_data = validated_data.pop('user', None)
-
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
@@ -56,23 +50,28 @@ class BusinessProfileSerializer(serializers.ModelSerializer):
         instance.description = validated_data.get('description', instance.description)
         instance.working_hours = validated_data.get('working_hours', instance.working_hours)
         instance.save()
-
-        if user_data:
-            user = instance.user
-            user.first_name = user_data.get('first_name', user.first_name)
-            user.last_name = user_data.get('last_name', user.last_name)
-            user.email = user_data.get('email', user.email)
-            user.save()
-
         return instance
+
+
+class BusinessProfileListSerializer(serializers.ModelSerializer):
+    """
+    Handles validation, representation, and updating of business-related profile information.
+    """
+    user = CustomUserSerializer(read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'created_at', 'type', 'location', 'tel', 'description', 'working_hours', 'email']
+        extra_kwargs = {
+            'file': {'required': False},
+            'uploaded_at': {'required': False},
+        }
 
 
 class CustomerProfileSerializer(serializers.ModelSerializer):
     """
     Handles validation, representation, and updating of customer-related profile information.
     """
-    user = serializers.SerializerMethodField()
-
     class Meta:
         model = UserProfile
         fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'type', 'email', 'created_at']
@@ -80,9 +79,6 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             'file': {'required': False},
             'uploaded_at': {'required': False},
         }
-
-    def get_user(self, obj):
-        return {"pk": obj.user.pk}
 
     def to_representation(self, instance):
         """
@@ -109,19 +105,24 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
         """
         Updates the UserProfile instance with the validated data and updates the associated User instance.
         """
-        user_data = validated_data.pop('user', None)
-
         instance.first_name = validated_data.get('first_name', instance.first_name)
         instance.last_name = validated_data.get('last_name', instance.last_name)
         instance.email = validated_data.get('email', instance.email)
         instance.file = validated_data.get('file', instance.file)
         instance.save()
-
-        if user_data:
-            user = instance.user
-            user.first_name = user_data.get('first_name', user.first_name)
-            user.last_name = user_data.get('last_name', user.last_name)
-            user.email = user_data.get('email', user.email)
-            user.save()
-
         return instance
+
+
+class CustomerProfileListSerializer(serializers.ModelSerializer):
+    """
+    Handles validation, representation, and updating of customer-related profile information.
+    """
+    user = CustomUserSerializer(read_only=True)
+
+    class Meta:
+        model = UserProfile
+        fields = ['user', 'username', 'first_name', 'last_name', 'file', 'uploaded_at', 'type', 'email', 'created_at']
+        extra_kwargs = {
+            'file': {'required': False},
+            'uploaded_at': {'required': False},
+        }

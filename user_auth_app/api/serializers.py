@@ -44,3 +44,9 @@ class RegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({'type': 'Ungültiger Benutzertyp.'})
         profile = UserProfile.objects.create(user=user, type=type)
         return profile
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['pk', 'username', 'first_name', 'last_name', 'email']

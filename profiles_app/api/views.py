@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.exceptions import NotFound
 from rest_framework import status
 from ..models import UserProfile
-from .serializers import BusinessProfileSerializer, CustomerProfileSerializer
+from .serializers import BusinessProfileSerializer, CustomerProfileSerializer, BusinessProfileListSerializer, CustomerProfileListSerializer
 from .permissions import IsOwnerOrAdmin
 from rest_framework.permissions import IsAuthenticated
 
@@ -41,11 +41,11 @@ class BusinessProfileListView(generics.ListAPIView):
     """Retrieve a list of all user profiles with 'business' type."""
 
     queryset = UserProfile.objects.filter(type='business')
-    serializer_class = BusinessProfileSerializer
+    serializer_class = BusinessProfileListSerializer
 
 
 class CustomerProfileListView(generics.ListAPIView):
     """Retrieve a list of all user profiles with 'customer' type."""
 
     queryset = UserProfile.objects.filter(type='customer')
-    serializer_class = CustomerProfileSerializer
+    serializer_class = CustomerProfileListSerializer
