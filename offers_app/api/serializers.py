@@ -12,6 +12,11 @@ class OfferDetailSerializer(serializers.ModelSerializer):
         model = OfferDetail
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['price'] = "{:.2f}".format(instance.price)
+        return data
+
 
 class OfferDetailUpdateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
@@ -19,6 +24,11 @@ class OfferDetailUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = OfferDetail
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['price'] = "{:.2f}".format(instance.price)
+        return data
 
 
 class OfferCreateSerializer(serializers.ModelSerializer):
