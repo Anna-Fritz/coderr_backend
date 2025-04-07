@@ -16,7 +16,10 @@ class OfferFilter(django_filters.FilterSet):
         return queryset.annotate(min_price=Min('details__price')).filter(min_price__gte=value)
 
     def filter_max_delivery_time(self, queryset, name, value):
-        return queryset.annotate(max_delivery_time=Max('details__delivery_time_in_days')).filter(max_delivery_time__lte=value)
+        return queryset.filter(details__delivery_time_in_days__lte=value).distinct()
+    
+    # def filter_max_delivery_time(self, queryset, name, value):
+    #     return queryset.annotate(max_delivery_time=Max('details__delivery_time_in_days')).filter(max_delivery_time__lte=value)
 
     def filter_creator_id(self, queryset, name, value):
         return queryset.filter(user__id=value)
