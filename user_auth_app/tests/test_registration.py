@@ -97,7 +97,7 @@ class RegistrationSerializerTests(TestCase):
         serializer = RegistrationSerializer(data=data)
         self.assertTrue(serializer.is_valid(), serializer.errors)
         profile = serializer.save()
-        self.assertEqual(UserProfile.objects.count(), 1)
+        self.assertEqual(UserProfile.objects.count(), 3)    # included generated guest users
         self.assertEqual(profile.type, "business")
 
 
@@ -129,8 +129,8 @@ class RegistrationViewTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn("token", response.data)
         self.assertEqual(response.data["username"], "newuser")
-        self.assertEqual(CustomUser.objects.count(), 1)
-        self.assertEqual(UserProfile.objects.count(), 1)
+        self.assertEqual(CustomUser.objects.count(), 3)    # included generated guest users
+        self.assertEqual(UserProfile.objects.count(), 3)
 
     def test_registration_with_invalid_data(self):
         """

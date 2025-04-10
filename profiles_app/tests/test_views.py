@@ -5,7 +5,7 @@ from user_auth_app.models import CustomUser
 from profiles_app.models import UserProfile
 from rest_framework.authtoken.models import Token
 from ..api.views import BusinessProfileListView, CustomerProfileListView
-from ..api.serializers import BusinessProfileSerializer, CustomerProfileSerializer
+from ..api.serializers import BusinessProfileListSerializer, CustomerProfileListSerializer
 
 
 class ProfileDetailTests(APITestCase):
@@ -52,11 +52,11 @@ class ProfileDetailTests(APITestCase):
         response = self.client.get("api/profile/999/")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_user_cannot_retrieve_other_user_profile(self):
+    def test_user_can_retrieve_other_user_profile(self):
         """Ensure users cannot access another user's profile details."""
         self.client.force_authenticate(user=self.other_user)
         response = self.client.get(self.url)
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_profile_owner_patch_profile(self):
         """Ensure profile owners can update their own profile details."""
@@ -153,7 +153,7 @@ class TypeProfileListTests(APITestCase):
         self.client.force_authenticate(user=self.business_user)
         response = self.client.get(self.business_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 2)    # included business guest user
         self.assertEqual(response.data[0]["type"], "business")
 
         for profile in response.data:
@@ -164,7 +164,7 @@ class TypeProfileListTests(APITestCase):
         self.client.force_authenticate(user=self.customer_user)
         response = self.client.get(self.customer_url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 2)    # included customer guest user
         self.assertEqual(response.data[0]["type"], "customer")
 
         for profile in response.data:
@@ -173,12 +173,12 @@ class TypeProfileListTests(APITestCase):
     def test_business_profile_list_uses_correct_serializer(self):
         """Ensure the business profile list view uses the correct serializer."""
         view = BusinessProfileListView()
-        self.assertEqual(view.serializer_class, BusinessProfileSerializer)
+        self.assertEqual(view.serializer_class, BusinessProfileListSerializer)
 
     def test_customer_profile_list_uses_correct_serializer(self):
         """Ensure the customer profile list view uses the correct serializer."""
         view = CustomerProfileListView()
-        self.assertEqual(view.serializer_class, CustomerProfileSerializer)
+        self.assertEqual(view.serializer_class, CustomerProfileListSerializer)
 
 
 class EmptyProfileListTests(APIClient):

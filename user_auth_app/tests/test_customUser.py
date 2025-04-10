@@ -1,3 +1,5 @@
+import tempfile
+from django.conf import settings
 from django.test import TestCase
 from ..models import CustomUser
 from django.core.exceptions import ValidationError
@@ -8,6 +10,9 @@ class CustomUserModelTests(TestCase):
     """
     Test suite for testing the CustomUser model's behavior and validations.
     """
+    def setUp(self):
+        self.test_media_root = tempfile.mkdtemp()
+        settings.MEDIA_ROOT = self.test_media_root
 
     def test_create_user_successfully(self):
         """
@@ -56,3 +61,15 @@ class CustomUserModelTests(TestCase):
         permission = Permission.objects.first()
         user.user_permissions.add(permission)
         self.assertIn(permission, user.user_permissions.all())
+
+    def tearDown(self):
+        users_with_andrey_image = CustomUser.objects.filter(
+            userprofile__file__icontains="ai_generated_profile_img_andrey_"
+        )
+        users_with_andrey_image.delete()
+
+        users_with_kevin_image = CustomUser.objects.filter(
+            userprofile__file__icontains="ai_generated_profile_img_kevin_"
+        )
+        users_with_kevin_image.delete()
+

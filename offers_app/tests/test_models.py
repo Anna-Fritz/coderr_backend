@@ -26,7 +26,7 @@ class OfferModelTests(TestCase):
     def test_str_method(self):
         """Tests the `__str__()` method of the `Offer` model."""
         offer = Offer.objects.create(title="Test Offer", description="Test Description", user=self.user)
-        self.assertEqual(str(offer), f"{offer.title}, {offer.created_at} ({self.user.first_name})")
+        self.assertEqual(str(offer), f"Business User: {self.user.first_name} {self.user.last_name}, Offer: {offer.id}")
 
     def test_image_upload_and_rename(self):
         """Tests if an uploaded image is correctly stored and renamed."""
@@ -36,6 +36,7 @@ class OfferModelTests(TestCase):
         offer.save()
         expected_filename = f"offer-imgs/user_{self.user.id}_{self.user.username}_offer_{offer.id}.jpg"
         self.assertEqual(offer.image.name, expected_filename)
+        offer.delete()
 
     def test_old_image_deleted_on_update(self):
         """Tests if the old image is deleted when a new image is uploaded."""

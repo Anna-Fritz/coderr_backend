@@ -1,3 +1,5 @@
+import os
+
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from django.test import TestCase
 from ..models import UserProfile
@@ -34,6 +36,7 @@ class BusinessProfileSerializerTests(TestCase):
             'file': f"/media/{profile.file.name}",
         }
         self.assertEqual(serializer.data['file'], expected_representation['file'])
+        os.remove(profile.file.path)
 
     def test_update_user_profile(self):
         """Ensure serializer correctly updates an existing user profile."""
