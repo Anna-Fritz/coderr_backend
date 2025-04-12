@@ -53,7 +53,9 @@ class OfferViewSetListActionTest(APITestCase):
 
 class OfferViewSetCreateActionTest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
+        self.user = CustomUser.objects.create_user(username="testuser", password="password", type="business")
+        self.customer_user = CustomUser.objects.create_user(username="testuser2", password="password", type="customer")
+        self.admin_user = CustomUser.objects.create_superuser(username="adminuser", password="password")
         self.data = {
             'title': 'Test Offer',
             'description': 'Test Description',
@@ -74,14 +76,26 @@ class OfferViewSetCreateActionTest(APITestCase):
         self.url = reverse('offer-list')
         self.client.force_authenticate(user=self.user)
 
-    def test_offer_create_authenticated_user(self):
+    def test_offer_create_authenticated_business_user(self):
         response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_customer_user_cannot_create_offer(self):
+        self.client.logout()
+        self.client.force_authenticate(user=self.customer_user)
+        response = self.client.post(self.url, self.data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_admin_can_create_offer(self):
+        self.client.logout()
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.post(self.url, self.data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_offer_create_unauthenticated_user(self):
         self.client.logout()
-        with self.assertRaises(ValueError):
-            self.client.post(self.url, self.data, format='json')
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_offer_create_missing_required_fields(self):
         """Test that a 400 error is returned when required fields are missing."""
@@ -116,8 +130,8 @@ class OfferViewSetCreateActionTest(APITestCase):
 
 class OfferViewSetUpdateActionTest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
-        self.other_user = CustomUser.objects.create_user(username="second_testuser", password="password")
+        self.user = CustomUser.objects.create_user(username="testuser", password="password", type="business")
+        self.other_user = CustomUser.objects.create_user(username="second_testuser", password="password", type="business")
         self.offer = Offer.objects.create(title="Test offer", description="List Test", user=self.user)
         self.url = reverse('offer-detail', kwargs={'pk': self.offer.id})
 
@@ -161,7 +175,8 @@ class OfferViewSetUpdateActionTest(APITestCase):
 
 class OfferDetailDetailViewTest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
+        self.user = CustomUser.objects.create_user(username="testuser", password="password", type="business")
+        self.admin_user = CustomUser.objects.create_superuser(username="admin_user", password="password")
         self.offer = Offer.objects.create(title="Test offer", description="List Test", user=self.user)
         self.offerdetail = OfferDetail.objects.create(offer=self.offer, title="Basic", revisions=1, delivery_time_in_days=3, price=50, features=[], offer_type="basic")
         self.url = reverse('offerdetails-detail', kwargs={'pk': self.offerdetail.id})
@@ -176,3 +191,17 @@ class OfferDetailDetailViewTest(APITestCase):
         """Test that a 404 error is returned for a non-existent offer ID."""
         response = self.client.get('/api/offerdetails/9999/')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_retrieve_offer_as_unauthenticated_user(self):
+        """Test for retrieving a single offer as an unauthenticated user"""
+        self.client.logout()
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_retrieve_offer_as_admin_user(self):
+        """Test for retrieving a single offer as an admin user"""
+        self.client.logout()
+        self.client.force_authenticate(user=self.admin_user)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['id'], self.offer.id)

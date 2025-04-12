@@ -55,6 +55,8 @@ class OfferCreateSerializer(serializers.ModelSerializer):
         """
         Validates that the uploaded image has an allowed extension (.jpg, .jpeg, .png).
         """
+        if not value:
+            return value
         valid_extensions = ['.jpg', '.jpeg', '.png']
         extension = os.path.splitext(value.name)[1].lower()
         if extension not in valid_extensions:
