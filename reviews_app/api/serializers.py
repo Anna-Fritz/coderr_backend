@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from ..models import Review
 
@@ -31,6 +32,12 @@ class ReviewSerializer(serializers.ModelSerializer):
         return review
 
     def update(self, instance, validated_data):
+        allowed_fields = {'rating', 'description'}
+        invalid_fields = set(validated_data.keys()) - allowed_fields
+        if invalid_fields:
+            raise ValidationError(
+                {"detail": f"Only 'rating' and 'description' can be updated. Invalid fields: {', '.join(invalid_fields)}"}
+            )
         instance.rating = validated_data.get('rating', instance.rating)
         instance.description = validated_data.get('description', instance.description)
         instance.save()
