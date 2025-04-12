@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework.exceptions import NotFound
 from rest_framework import status
@@ -20,10 +21,7 @@ class ProfileDetailView(generics.RetrieveUpdateDestroyAPIView):
         Retrieve the UserProfile object based on the user ID in the URL.
         Raises NotFound error if the profile does not exist.
         """
-        try:
-            obj = UserProfile.objects.get(user_id=self.kwargs['pk'])
-        except UserProfile.DoesNotExist:
-            raise NotFound({'error': 'Der Benutzer wurde nicht gefunden.'}, status=status.HTTP_404_NOT_FOUND)
+        obj = get_object_or_404(UserProfile, user_id=self.kwargs['pk'])
         self.check_object_permissions(self.request, obj)
         return obj
 
