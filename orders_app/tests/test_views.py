@@ -129,6 +129,14 @@ class OrderViewSetTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('status', response.data)
 
+    def test_update_order_unauthorized_field(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "title": "New order title"  # unauthorized field
+        }
+        response = self.client.patch(self.detail_url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_get_user_orders(self):
         """Test that users can only see their own orders."""
         self.client.force_authenticate(user=self.customer)

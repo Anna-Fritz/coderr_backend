@@ -48,6 +48,8 @@ class OrderSerializer(serializers.ModelSerializer):
         return order
 
     def update(self, instance, validated_data):
+        if set(validated_data.keys()) != {"status"}:
+            raise serializers.ValidationError("Only the 'status' field is allowed to be updated.")
         status = validated_data.pop('status', None)
         instance = super().update(instance, validated_data)
         if status:
