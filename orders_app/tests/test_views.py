@@ -1,7 +1,6 @@
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 from rest_framework.test import APITestCase
 
 from orders_app.models import Order
@@ -64,6 +63,11 @@ class OrderViewSetTests(APITestCase):
         self.assertEqual(response.data['customer_user'], self.customer.id)
         self.assertEqual(response.data['business_user'], self.user.id)
         self.assertEqual(response.data['status'], "in_progress")
+
+    def test_only_customer_user_allowed_create_order(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(self.url, self.data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_invalid_offer_detail_id(self):
         """Test that an invalid status value raises a validation error."""
@@ -150,3 +154,9 @@ class OrderViewSetTests(APITestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
+
+    def test_only_admin_delete_orders(self):
+        admin = get_user_model().objects.create_superuser(username="admin", password="password", type="business")
+        self.client.force_authenticate(user=admin)
+        response = self.client.delete(self.detail_url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
