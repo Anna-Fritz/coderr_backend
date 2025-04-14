@@ -9,6 +9,8 @@ class IsOwnerOrAdmin(BasePermission):
     For other requests, the user must either be the owner of the object or an admin.
     """
     def has_object_permission(self, request, view, obj):
+        if not request.user.is_authenticated:
+            return False
         if request.method in SAFE_METHODS:
             return True
         if request.method == 'DELETE':
