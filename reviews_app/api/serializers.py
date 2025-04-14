@@ -13,6 +13,8 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         user = self.context['request'].user
         business_user = data.get('business_user')
+        if self.instance:
+            return data
         if Review.objects.filter(business_user=business_user, reviewer=user).exists():
             raise serializers.ValidationError("You have already reviewed this business user.")
         return data
