@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework import filters
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
@@ -13,7 +14,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated, IsReviewerOrBusinessUserOrAdmin]
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['business_user_id', 'reviewer_id']
     ordering_fields = ['updated_at', 'rating']
     ordering = ['updated_at']
