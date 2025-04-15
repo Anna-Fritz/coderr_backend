@@ -9,12 +9,13 @@ class CustomUser(AbstractUser):
     with a 'type' field to specify whether the user is a 'customer' or 'business'.
     """
 
-    type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], null=False, blank=False)
+    type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')])
     file = models.FileField(blank=True, null=True)
 
     groups = models.ManyToManyField(
         Group,
         related_name='customuser_set',
+        blank=True
     )
     user_permissions = models.ManyToManyField(
         Permission,
