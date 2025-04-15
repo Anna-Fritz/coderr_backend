@@ -8,8 +8,13 @@ from offers_app.models import OfferDetail, Offer
 
 
 class OrderViewSetTests(APITestCase):
-
+    """
+    Test suite for the OrderViewSet API.
+    """
     def setUp(self):
+        """
+        Set up test data, including users, offers, and orders.
+        """
         self.user = get_user_model().objects.create_user(
             username="testuser",
             password="testpassword",
@@ -65,6 +70,9 @@ class OrderViewSetTests(APITestCase):
         self.assertEqual(response.data['status'], "in_progress")
 
     def test_only_customer_user_allowed_create_order(self):
+        """
+        Ensure only customer users can create orders; business users cannot.
+        """
         self.client.force_authenticate(user=self.user)
         response = self.client.post(self.url, self.data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -134,6 +142,9 @@ class OrderViewSetTests(APITestCase):
         self.assertIn('status', response.data)
 
     def test_update_order_unauthorized_field(self):
+        """
+        Ensure users cannot update unauthorized fields like the order title.
+        """
         self.client.force_authenticate(user=self.user)
         data = {
             "title": "New order title"  # unauthorized field
@@ -156,6 +167,9 @@ class OrderViewSetTests(APITestCase):
         self.assertEqual(len(response.data), 1)
 
     def test_only_admin_delete_orders(self):
+        """
+        Verify that only an admin can delete orders.
+        """
         admin = get_user_model().objects.create_superuser(username="admin", password="password", type="business")
         self.client.force_authenticate(user=admin)
         response = self.client.delete(self.detail_url)

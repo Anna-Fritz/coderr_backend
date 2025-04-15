@@ -9,12 +9,17 @@ from offers_app.api.serializers import OfferDetailSerializer, OfferCreateSeriali
 
 
 class OfferDetailSerializerTest(TestCase):
+    """
+    Test suite for the OfferDetailSerializer, ensuring that the serializer handles valid and invalid data correctly.
+    """
     def setUp(self):
         self.user = get_user_model().objects.create_user(username="testuser", password="password")
         self.offer = Offer.objects.create(title="Test Offer", description="Test", user=self.user)
 
     def test_valid_serializer(self):
-        """Test that a valid serializer does not raise errors"""
+        """
+        Test that a valid serializer does not raise errors
+        """
         data = {
             "title": "Basic Package",
             "revisions": 1,
@@ -27,7 +32,9 @@ class OfferDetailSerializerTest(TestCase):
         self.assertTrue(serializer.is_valid())
 
     def test_invalid_offer_type(self):
-        """Test that an invalid offer_type raises a validation error"""
+        """
+        Test that an invalid offer_type raises a validation error
+        """
         data = {
             "title": "Basic Package",
             "revisions": 1,
@@ -41,7 +48,9 @@ class OfferDetailSerializerTest(TestCase):
         self.assertIn("offer_type", serializer.errors)
 
     def test_negative_price_not_allowed(self):
-        """Test that a negative price raises a validation error"""
+        """
+        Test that a negative price raises a validation error
+        """
         data = {
             "title": "Basic Package",
             "revisions": 1,
@@ -56,6 +65,9 @@ class OfferDetailSerializerTest(TestCase):
 
 
 class OfferCreateSerializerTest(TestCase):
+    """
+    Test suite for the OfferCreateSerializer, ensuring that offer creation functionality is correctly handled.
+    """
     def setUp(self):
         self.factory = APIRequestFactory()
         self.user = get_user_model().objects.create_user(username="testuser", password="password")
@@ -63,7 +75,9 @@ class OfferCreateSerializerTest(TestCase):
         self.request.user = self.user  # add user
 
     def test_create_offer_with_details(self):
-        """Test that an offer is created correctly with details"""
+        """
+        Test that an offer is created correctly with details
+        """
         data = {
             "title": "New Offer",
             "description": "This is a test offer",
@@ -77,7 +91,9 @@ class OfferCreateSerializerTest(TestCase):
         self.assertEqual(offer.details.count(), 1)
 
     def test_invalid_image_extension(self):
-        """Test that an invalid image extension raises a validation error"""
+        """
+        Test that an invalid image extension raises a validation error
+        """
         image = SimpleUploadedFile("test.txt", b"file_content", content_type="text/plain")
         data = {"image": image}
         serializer = OfferCreateSerializer(data=data)
@@ -86,6 +102,10 @@ class OfferCreateSerializerTest(TestCase):
 
 
 class OfferUpdateSerializerTest(TestCase):
+    """
+    Test suite for the OfferUpdateSerializer, ensuring that updates to existing offers and offer details are handled
+    correctly.
+    """
     def setUp(self):
         self.user = get_user_model().objects.create_user(username="testuser", password="password")
         self.offer = Offer.objects.create(title="Update Test", description="Update Test", user=self.user)
@@ -94,7 +114,9 @@ class OfferUpdateSerializerTest(TestCase):
         )
 
     def test_update_offer_details(self):
-        """Test updating an existing offer detail"""
+        """
+        Test updating an existing offer detail
+        """
         data = {
             "id": self.offer.id,
             "title": "Updated Offer",
@@ -120,7 +142,9 @@ class OfferUpdateSerializerTest(TestCase):
         self.assertEqual(updated_detail.price, 100)
 
     def test_update_non_existing_detail(self):
-        """Test that updating a non-existing OfferDetail raises an error"""
+        """
+        Test that updating a non-existing OfferDetail raises an error
+        """
         data = {
             "id": self.offer.id,
             "title": "Offer Title",
@@ -142,7 +166,10 @@ class OfferUpdateSerializerTest(TestCase):
         self.assertIn("details", serializer.errors)
 
 
-class OfferSerializerGetResponseTest(TestCase):  # Tests OfferListSerializer and OfferDetailViewSerializer - GET Response
+class OfferSerializerGetResponseTest(TestCase):
+    """
+    Test suite for testing the GET responses of offer-related serializers.
+    """
     def setUp(self):
         self.factory = APIRequestFactory()
         self.user = get_user_model().objects.create_user(username="testuser", password="password")
@@ -153,21 +180,27 @@ class OfferSerializerGetResponseTest(TestCase):  # Tests OfferListSerializer and
         self.request.user = self.user  # add user
 
     def test_min_price_calculation(self):
-        """Test that the minimum price is calculated correctly"""
+        """
+        Test that the minimum price is calculated correctly
+        """
         serializer = OfferListSerializer(instance=self.offer, context={"request": self.request})
         self.assertEqual(serializer.data["min_price"], 50)
         serializer = OfferDetailViewSerializer(instance=self.offer, context={"request": self.request})
         self.assertEqual(serializer.data["min_price"], 50)
 
     def test_min_delivery_time_calculation(self):
-        """Test that the minimum delivery time is calculated correctly"""
+        """
+        Test that the minimum delivery time is calculated correctly
+        """
         serializer = OfferListSerializer(instance=self.offer, context={"request": self.request})
         self.assertEqual(serializer.data["min_delivery_time"], 2)
         serializer = OfferDetailViewSerializer(instance=self.offer, context={"request": self.request})
         self.assertEqual(serializer.data["min_delivery_time"], 2)
 
     def test_details_format(self):
-        """Test that the details field contains the expected URLs"""
+        """
+        Test that the details field contains the expected URLs
+        """
         serializer = OfferListSerializer(instance=self.offer, context={"request": self.request})
         details = serializer.data["details"]
         self.assertEqual(len(details), 2)
@@ -175,7 +208,9 @@ class OfferSerializerGetResponseTest(TestCase):  # Tests OfferListSerializer and
         self.assertEqual(len(details), 2)
 
     def test_user_details_serialization(self):
-        """Test that user_details are correctly serialized"""
+        """
+        Test that user_details are correctly serialized
+        """
         serializer = OfferListSerializer(instance=self.offer, context={"request": self.request})
         expected_user_details = {
             "first_name": self.user.first_name,

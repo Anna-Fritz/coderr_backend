@@ -12,6 +12,10 @@ from .permissions import IsOwnerOrAdminOrReadOnly
 
 
 class OfferViewSet(viewsets.ModelViewSet):
+    """
+    A viewset that provides CRUD operations for the `Offer` model. Supports filtering, searching,
+    ordering, and pagination of offers, while ensuring proper permissions are enforced.
+    """
     filterset_class = OfferFilter
     search_fields = ['title', 'description']
     ordering_fields = ['updated_at', 'min_price']
@@ -35,6 +39,9 @@ class OfferViewSet(viewsets.ModelViewSet):
         return queryset
 
     def get_serializer_class(self):
+        """
+        Returns the appropriate serializer class based on the action being performed.
+        """
         if self.action == "list":
             return OfferListSerializer  # GET /offers/
         if self.action == "retrieve":
@@ -55,6 +62,10 @@ class OfferViewSet(viewsets.ModelViewSet):
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):
+        """
+        Updates an existing offer. Supports both full and partial updates, depending on the 
+        request type (PUT or PATCH). Validates the incoming data and performs the update.
+        """
         partial = kwargs.pop('partial', False)  # check if request is PATCH
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -64,5 +75,9 @@ class OfferViewSet(viewsets.ModelViewSet):
 
 
 class OfferDetailDetailView(generics.RetrieveAPIView):
+    """
+    A view that provides the functionality to retrieve the details of an individual offer detail.
+    This view serves as a read-only endpoint for accessing the `OfferDetail` model.
+    """
     queryset = OfferDetail.objects.all()
     serializer_class = OfferDetailSerializer

@@ -4,7 +4,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 class IsOwnerOrAdminOrReadOnly(BasePermission):
     """
     Custom permission class that grants read-only access to any request
-    but allows write operations only if the requesting user is authenticated and the object's owner oder admin user.
+    but allows write operations only if the requesting user is authenticated and the object's owner or admin user.
     """
     def has_permission(self, request, view):
         if request.method in SAFE_METHODS:

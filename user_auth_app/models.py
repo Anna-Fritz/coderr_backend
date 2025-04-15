@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser, Group, Permission
 class CustomUser(AbstractUser):
     """
     Custom user model that extends the default Django user model (AbstractUser) 
-    with a 'type' field to specify whether the user is a 'customer' or 'business'.
+    with a 'type' field to specify whether the user is a 'customer' or 'business' and a file field for profile image.
     """
 
     type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')])

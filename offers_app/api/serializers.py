@@ -6,6 +6,10 @@ import os
 
 
 class OfferDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer for representing an `OfferDetail` instance.
+    Converts the model fields into a JSON-compatible format.
+    """
     id = serializers.IntegerField(read_only=True)
 
     class Meta:
@@ -13,12 +17,19 @@ class OfferDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
 
     def to_representation(self, instance):
+        """
+        Customize the representation of the `OfferDetail` instance.
+        """
         data = super().to_representation(instance)
         data['price'] = "{:.2f}".format(instance.price)
         return data
 
 
 class OfferDetailUpdateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for updating an `OfferDetail` instance. It allows the user to modify the fields 
+    of an existing `OfferDetail` object.
+    """
     id = serializers.IntegerField()
 
     class Meta:
@@ -26,12 +37,18 @@ class OfferDetailUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
 
     def to_representation(self, instance):
+        """
+        Customize the representation of the `OfferDetail` instance.
+        """
         data = super().to_representation(instance)
         data['price'] = "{:.2f}".format(instance.price)
         return data
 
 
 class OfferCreateSerializer(serializers.ModelSerializer):
+    """
+    Serializer for creating a new `Offer` instance, including its associated `OfferDetail` instances.
+    """
     details = OfferDetailSerializer(many=True)
 
     class Meta:
@@ -39,6 +56,9 @@ class OfferCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'image', 'description', 'details']
 
     def create(self, validated_data):
+        """
+        Creates a new `Offer` and associated `OfferDetail` instances.
+        """
         user = self.context['request'].user
         validated_data['user'] = user
 
@@ -65,6 +85,9 @@ class OfferCreateSerializer(serializers.ModelSerializer):
 
 
 class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
+    """
+    Serializer for updating an existing `Offer` instance, including its associated `OfferDetail` instances.
+    """
     details = OfferDetailUpdateSerializer(many=True)
 
     class Meta:
@@ -93,6 +116,9 @@ class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
         return value
 
     def update(self, instance, validated_data):
+        """
+        Updates an existing `Offer` instance and its associated `OfferDetail` instances.
+        """
         details_data = validated_data.pop('details', None)
         image = validated_data.pop('image', None)
         instance = super().update(instance, validated_data)
@@ -121,6 +147,10 @@ class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
 
 
 class OfferDetailViewSerializer(serializers.ModelSerializer):   # GET Retrieve
+    """
+    Serializer for representing an `Offer` with its related `OfferDetail` instances for the "retrieve" action.
+    Includes additional fields for the minimum price and minimum delivery time across all `OfferDetail` instances.
+    """
     details = serializers.SerializerMethodField()
     min_price = serializers.SerializerMethodField()
     min_delivery_time = serializers.SerializerMethodField()
@@ -130,6 +160,9 @@ class OfferDetailViewSerializer(serializers.ModelSerializer):   # GET Retrieve
         fields = ['id', 'user', 'title', 'image', 'description', 'created_at', 'updated_at', 'details', 'min_price', 'min_delivery_time']
 
     def get_details(self, obj):
+        """
+        Retrieves the related `OfferDetail` instances for the offer and returns their URLs.
+        """
         request = self.context.get('request')
         return [
             {
@@ -140,13 +173,23 @@ class OfferDetailViewSerializer(serializers.ModelSerializer):   # GET Retrieve
         ]
 
     def get_min_price(self, obj):
+        """
+        Retrieves the minimum price from the related `OfferDetail` instances.
+        """
         return obj.details.aggregate(Min("price"))["price__min"]
 
     def get_min_delivery_time(self, obj):
+        """
+        Retrieves the minimum delivery time from the related `OfferDetail` instances.
+        """
         return obj.details.aggregate(Min("delivery_time_in_days"))["delivery_time_in_days__min"]
 
 
 class OfferListSerializer(OfferDetailViewSerializer):  # GET List
+    """
+    Serializer for representing a list of `Offer` instances. Inherits from `OfferDetailViewSerializer`
+    but includes additional user details for each offer.
+    """
     user_details = serializers.SerializerMethodField()
 
     class Meta:

@@ -1,16 +1,20 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
-from ..models import Order, CustomUser, OrderStatus
+from django.contrib.auth import get_user_model
+from ..models import Order, OrderStatus
 
 
 class OrderModelTests(TestCase):
-
+    """
+    Unit tests for the Order model to ensure proper functionality of its methods
+    and validation logic such as status, offer type, and field constraints.
+    """
     def setUp(self):
         """Set up necessary data for tests"""
-        self.customer = CustomUser.objects.create_user(
+        self.customer = get_user_model().objects.create_user(
             username="customer", password="password", type="customer"
         )
-        self.business = CustomUser.objects.create_user(
+        self.business = get_user_model().objects.create_user(
             username="business", password="password", type="business"
         )
 

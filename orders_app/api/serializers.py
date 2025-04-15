@@ -4,10 +4,13 @@ from django.contrib.auth import get_user_model
 
 from ..models import Order
 from offers_app.models import OfferDetail
-# from user_auth_app.models import CustomUser
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """
+    Serializer for handling the creation and update of orders.
+    It handles validation, creation, and update logic for the order model.
+    """
     offer_detail_id = serializers.PrimaryKeyRelatedField(queryset=OfferDetail.objects.all(), write_only=True)
 
     class Meta:
@@ -16,6 +19,10 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'customer_user', 'business_user', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type', 'created_at', 'updated_at']
 
     def validate(self, attrs):
+        """
+        Custom validation to ensure only allowed fields are present when creating an order.
+        During POST requests, only 'offer_detail_id' is allowed in the request data.
+        """
         request = self.context['request']
         if request and request.method == 'POST':
             allowed_fields = {'offer_detail_id'}
@@ -27,6 +34,9 @@ class OrderSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """
+        Creates a new order based on the provided validated data.
+        """
         request_user = self.context['request'].user
         if not request_user.is_authenticated:
             raise serializers.ValidationError({"user": "Authentication is required."})
@@ -49,6 +59,10 @@ class OrderSerializer(serializers.ModelSerializer):
         return order
 
     def update(self, instance, validated_data):
+        """
+        Override the update method to allow only the 'status' field to be updated.
+        If other fields are provided, a validation error is raised.
+        """
         if set(validated_data.keys()) != {"status"}:
             raise serializers.ValidationError("Only the 'status' field is allowed to be updated.")
         status = validated_data.pop('status', None)

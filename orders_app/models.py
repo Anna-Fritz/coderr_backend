@@ -12,6 +12,9 @@ class OrderStatus(models.TextChoices):
 
 
 class Order(models.Model):
+    """
+    Represents a service order between a customer and a business user.
+    """
     customer_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="customer_orders", on_delete=models.SET_NULL, null=True)
     business_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="business_orders", on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=30)
@@ -25,6 +28,9 @@ class Order(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        """
+        Validates offer_type and status before saving.
+        """
         self.full_clean()
         valid_types = dict(self._meta.get_field("offer_type").choices)
         if self.offer_type not in valid_types:
@@ -37,4 +43,7 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
+        """
+        Returns a readable identifier for the order.
+        """
         return f"{self.customer_user.username}, order({self.id})"

@@ -2,6 +2,13 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
 class IsReviewerOrBusinessUserOrAdmin(BasePermission):
+    """
+    Custom permission to control access to review actions:
+    - Only customers can create reviews.
+    - Reviewers can update or delete their own reviews.
+    - Admins can delete any review.
+    - All authenticated users can read reviews.
+    """
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False

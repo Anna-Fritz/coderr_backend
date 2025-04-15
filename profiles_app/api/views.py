@@ -1,7 +1,5 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
-from rest_framework.exceptions import NotFound
-from rest_framework import status
 from ..models import UserProfile
 from .serializers import BusinessProfileSerializer, CustomerProfileSerializer, BusinessProfileListSerializer, CustomerProfileListSerializer
 from .permissions import IsOwnerOrAdmin

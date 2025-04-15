@@ -11,6 +11,11 @@ from .permissions import IsReviewerOrBusinessUserOrAdmin
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for managing Review objects. Supports listing, retrieving, creating,
+    updating, and deleting reviews. Includes filtering by business_user and reviewer,
+    as well as ordering by updated date or rating.
+    """
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated, IsReviewerOrBusinessUserOrAdmin]
@@ -20,6 +25,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     ordering = ['updated_at']
 
     def update(self, request, *args, **kwargs):
+        """
+        Handle partial or full updates of a review.
+        Only the reviewer can update their own review, and only the rating and
+        description fields are allowed to be modified.
+        """
         partial = kwargs.pop('partial', False)  # check if request is PATCH
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)

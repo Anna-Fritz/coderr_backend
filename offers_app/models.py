@@ -13,6 +13,10 @@ from .api.utils import validate_file_size
 # Create your models here.
 
 class Offer(models.Model):
+    """
+    Represents an offer created by a business user, including details such as title, image, description, 
+    and associated user, with functionality for managing image uploads and deletions.
+    """
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to='offer-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
     description = models.CharField(max_length=255)
@@ -21,6 +25,9 @@ class Offer(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        """
+        Saves the offer instance and renames the image if changed, deleting old images if necessary.
+        """
         if self.image:
             self.update_image()
         if self.id:
@@ -44,6 +51,9 @@ class Offer(models.Model):
         self.image.name = new_image_name
 
     def delete(self, *args, **kwargs):
+        """
+        Deletes the associated image file from storage when the offer is deleted.
+        """
         if self.image:
             image_path = self.image.path
             if os.path.exists(image_path):
@@ -51,6 +61,9 @@ class Offer(models.Model):
         super().delete(*args, **kwargs)
 
     def __str__(self):
+        """
+        Returns a string representation of the offer including business user and offer ID.
+        """
         return f"Business User: {self.user.first_name} {self.user.last_name}, Offer: {self.id}"
 
 
@@ -66,6 +79,10 @@ def delete_offer_image(sender, instance, **kwargs):
 
 
 class OfferDetail(models.Model):
+    """
+    Represents detailed specifications for a particular offer, including revisions, price, delivery time, 
+    features, and type of offer.
+    """
     offer = models.ForeignKey(Offer, related_name='details', on_delete=models.CASCADE)
     title = models.CharField(max_length=30)
     revisions = models.IntegerField(validators=[MinValueValidator(-1)])
@@ -75,6 +92,9 @@ class OfferDetail(models.Model):
     offer_type = models.CharField(max_length=25, choices=[('basic', 'Basic'), ('standard', 'Standard'), ('premium', 'Premium')])
 
     def save(self, *args, **kwargs):
+        """
+        Validates the offer type and saves the offer detail instance.
+        """
         self.full_clean()
         valid_types = dict(self._meta.get_field("offer_type").choices)
         if self.offer_type not in valid_types:

@@ -6,8 +6,11 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 
 class Review(models.Model):
+    """
+    Represents a review left by a customer (reviewer) for a business user.
+    """
     class Meta:
-        unique_together = ('business_user', 'reviewer') 
+        unique_together = ('business_user', 'reviewer')
 
     business_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="business_reviews", on_delete=models.CASCADE)
     reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="customer_reviews", on_delete=models.CASCADE)
@@ -17,4 +20,7 @@ class Review(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
+        """
+        Returns a readable string representation of the review instance.
+        """
         return f"Review by {self.reviewer.username} for {self.business_user.username} - {self.rating}★"
