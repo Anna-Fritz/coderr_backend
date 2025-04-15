@@ -104,3 +104,19 @@ class ReviewSerializerTest(APITestCase):
         self.assertFalse(serializer.is_valid())
         self.assertIn('rating', serializer.errors)
         self.assertIn('Ensure this value is less than or equal to 5.', serializer.errors['rating'][0])
+
+    def test_description_too_long_serializer(self):
+        long_text = "a" * 1001
+        user = get_user_model().objects.create(username="test", password="password", type="customer")
+        business_user = get_user_model().objects.create(username="biz", password="password", type="business")
+
+        self.client.force_authenticate(user=user)
+        data = {
+            "business_user": business_user.id,
+            "rating": 5,
+            "description": long_text
+        }
+
+        serializer = ReviewSerializer(data=data, context={"request": self.client.request()})
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("description", serializer.errors)
