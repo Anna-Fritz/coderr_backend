@@ -1,9 +1,9 @@
 import os
 from django.test import TestCase
-from rest_framework.exceptions import ValidationError
-from ..models import UserProfile
-from user_auth_app.models import CustomUser
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
+
+from ..models import UserProfile
 
 
 class UserProfileModelTests(TestCase):
@@ -13,7 +13,7 @@ class UserProfileModelTests(TestCase):
 
         self.file = SimpleUploadedFile("test_image.jpg", b"file_content", content_type="image/jpeg")
 
-        self.user = CustomUser.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username="testuser",
             password="testpassword",
             first_name="Testuser",
@@ -29,7 +29,7 @@ class UserProfileModelTests(TestCase):
         self.assertEqual(self.profile.user.username, "testuser")
         self.assertEqual(self.profile.first_name, "Testuser")
         self.assertEqual(self.profile.type, "customer")
-        self.assertEqual(CustomUser.objects.count(), UserProfile.objects.count())
+        self.assertEqual(get_user_model().objects.count(), UserProfile.objects.count())
 
     def test_auto_fill_user_data(self):
         """Ensure user profile automatically fills in data from the associated user."""
@@ -37,15 +37,6 @@ class UserProfileModelTests(TestCase):
         self.assertEqual(self.profile.first_name, self.user.first_name)
         self.assertEqual(self.profile.last_name, self.user.last_name)
         self.assertEqual(self.profile.email, self.user.email)
-
-    # def test_file_upload_size_validation(self):
-    #     """Ensure that large image files are correctly denied"""
-    #     large_file_data = SimpleUploadedFile("large_image.jpg", b"file_content" * 10**7, content_type="image/jpeg")
-    #     user = CustomUser(username="testuser2", password="password", type="business")
-    #     user.save()
-    #     profile = UserProfile(user=user, file=large_file_data, type=user.type)
-    #     with self.assertRaises(ValidationError):
-    #         profile.save()
 
     def test_uploaded_at_when_no_file(self):
         """Ensure uploaded_at remains None when no file is uploaded."""
