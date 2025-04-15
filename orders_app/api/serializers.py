@@ -1,9 +1,10 @@
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import get_user_model
 
 from ..models import Order
 from offers_app.models import OfferDetail
-from user_auth_app.models import CustomUser
+# from user_auth_app.models import CustomUser
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -30,9 +31,9 @@ class OrderSerializer(serializers.ModelSerializer):
         if not request_user.is_authenticated:
             raise serializers.ValidationError({"user": "Authentication is required."})
 
-        customer_user = get_object_or_404(CustomUser, id=request_user.id)
+        customer_user = get_object_or_404(get_user_model(), id=request_user.id)
         offer_detail_id = validated_data.pop('offer_detail_id')
-        business_user = get_object_or_404(CustomUser, id=offer_detail_id.offer.user.id)
+        business_user = get_object_or_404(get_user_model(), id=offer_detail_id.offer.user.id)
 
         order = Order.objects.create(
             customer_user=customer_user,

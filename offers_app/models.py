@@ -1,12 +1,13 @@
+import os
+from django.conf import settings
 from django.db import models
 from django.core.validators import FileExtensionValidator
-from .api.utils import validate_file_size
-from user_auth_app.models import CustomUser
-import os
 from django.core.files.storage import default_storage
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
 from django.core.validators import MinValueValidator
+
+from .api.utils import validate_file_size
 
 
 # Create your models here.
@@ -15,7 +16,7 @@ class Offer(models.Model):
     title = models.CharField(max_length=50)
     image = models.FileField(upload_to='offer-imgs/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png']), validate_file_size], blank=True, null=True)
     description = models.CharField(max_length=255)
-    user = models.ForeignKey(CustomUser, related_name='offers', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='offers', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

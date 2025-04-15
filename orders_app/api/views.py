@@ -3,9 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.db.models import Count, Q
+from django.contrib.auth import get_user_model
 
-
-from user_auth_app.models import CustomUser
 from ..models import Order
 from .serializers import OrderSerializer
 from .permissions import IsCustomerOrBusinessUserOrAdmin
@@ -37,8 +36,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 class OrderCountView(APIView):
     def get(self, request, business_user_id):
         try:
-            user = CustomUser.objects.get(id=business_user_id, type="business")
-        except CustomUser.DoesNotExist:
+            user = get_user_model().objects.get(id=business_user_id, type="business")
+        except get_user_model().DoesNotExist:
             return Response(
                 {"detail": "A business user with the provided ID could not be found."},
                 status=status.HTTP_404_NOT_FOUND
@@ -53,8 +52,8 @@ class OrderCountView(APIView):
 class CompletedOrderCountView(APIView):
     def get(self, request, business_user_id):
         try:
-            user = CustomUser.objects.get(id=business_user_id, type="business")
-        except CustomUser.DoesNotExist:
+            user = get_user_model().objects.get(id=business_user_id, type="business")
+        except get_user_model().DoesNotExist:
             return Response(
                 {"detail": "A business user with the provided ID could not be found."},
                 status=status.HTTP_404_NOT_FOUND

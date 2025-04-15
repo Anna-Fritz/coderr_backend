@@ -5,8 +5,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
 
-from offers_app.models import Offer, CustomUser, OfferDetail
+from offers_app.models import Offer, OfferDetail
 
 
 class OfferModelTests(TestCase):
@@ -15,7 +16,7 @@ class OfferModelTests(TestCase):
         self.test_media_root = tempfile.mkdtemp()
         settings.MEDIA_ROOT = self.test_media_root
 
-        self.user = CustomUser.objects.create(username="testuser", email="test@example.com")
+        self.user = get_user_model().objects.create(username="testuser", email="test@example.com")
 
     def test_offer_creation(self):
         """Tests if an `Offer` object can be successfully created."""
@@ -88,7 +89,7 @@ class OfferDetailModelTests(TestCase):
 
     def setUp(self):
         """Create a test user and offer for OfferDetail."""
-        self.user = CustomUser.objects.create_user(username="testuser", password="testpassword")
+        self.user = get_user_model().objects.create_user(username="testuser", password="testpassword")
         self.offer = Offer.objects.create(title="Test Offer", description="Test Description", user=self.user)
 
     def test_create_offer_detail(self):

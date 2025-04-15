@@ -1,12 +1,13 @@
+import os
+from django.conf import settings
 from django.db import models
 from django.core.validators import FileExtensionValidator
-from .api.utils import validate_file_size
 from django.utils import timezone
-from user_auth_app.models import CustomUser
-import os
 from django.core.files.storage import default_storage
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+
+from .api.utils import validate_file_size
 
 # Create your models here.
 
@@ -15,7 +16,7 @@ class UserProfile(models.Model):
     """
     Extends the CustomUser model with additional profile details.
     """
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     username = models.CharField(max_length=150, blank=True, null=True)
     first_name = models.CharField(max_length=15, blank=True, null=True)
     last_name = models.CharField(max_length=25, blank=True, null=True)

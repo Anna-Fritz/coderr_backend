@@ -1,9 +1,10 @@
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
-from user_auth_app.models import CustomUser
-from profiles_app.models import UserProfile
 from rest_framework.authtoken.models import Token
+
+from profiles_app.models import UserProfile
 from ..api.views import BusinessProfileListView, CustomerProfileListView
 from ..api.serializers import BusinessProfileListSerializer, CustomerProfileListSerializer
 
@@ -13,7 +14,7 @@ class ProfileDetailTests(APITestCase):
 
     def setUp(self):
         """Set up test users, profiles, and URLs for profile detail API."""
-        self.user = CustomUser.objects.create_user(
+        self.user = get_user_model().objects.create_user(
             username="testuser",
             password="testpassword",
             type="business"
@@ -22,7 +23,7 @@ class ProfileDetailTests(APITestCase):
             user=self.user,
             type=self.user.type
         )
-        self.other_user = CustomUser.objects.create_user(
+        self.other_user = get_user_model().objects.create_user(
             username="testuser2",
             password="testpassword",
             type="customer"
@@ -100,7 +101,7 @@ class ProfileDetailTests(APITestCase):
 
     def test_admin_delete_user_profile(self):
         """Ensure an admin can delete any user profile."""
-        admin_user = CustomUser.objects.create_superuser(username='adminuser', password='adminpassword')
+        admin_user = get_user_model().objects.create_superuser(username='adminuser', password='adminpassword')
         self.client.force_authenticate(user=admin_user)
         response = self.client.delete(self.url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
@@ -111,7 +112,7 @@ class TypeProfileListTests(APITestCase):
 
     def setUp(self):
         """Set up test users, profiles, and API endpoints for profile type listing."""
-        self.business_user = CustomUser.objects.create_user(
+        self.business_user = get_user_model().objects.create_user(
             username="testBusinessUser",
             password="testpassword",
             type="business"
@@ -120,7 +121,7 @@ class TypeProfileListTests(APITestCase):
             user=self.business_user,
             type=self.business_user.type
         )
-        self.customer_user = CustomUser.objects.create_user(
+        self.customer_user = get_user_model().objects.create_user(
             username="testCustomerUser",
             password="testpassword",
             type="customer"
@@ -180,16 +181,3 @@ class TypeProfileListTests(APITestCase):
         view = CustomerProfileListView()
         self.assertEqual(view.serializer_class, CustomerProfileListSerializer)
 
-
-class EmptyProfileListTests(APIClient):
-    """Test suite for handling cases where no profiles exist in the database."""
-
-    def test_get_empty_profile_lists(self):
-        """Ensure an empty profile list returns an empty response without errors."""
-        self.client.force_authenticate(user=self.business_user)
-        response = self.client.get(self.business_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])
-        response = self.client.get(self.customer_url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, [])

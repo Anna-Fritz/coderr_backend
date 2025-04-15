@@ -1,16 +1,16 @@
 from django.test import TestCase
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth import get_user_model
 from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIRequestFactory
 
-from user_auth_app.models import CustomUser
 from ..models import Offer, OfferDetail
 from offers_app.api.serializers import OfferDetailSerializer, OfferCreateSerializer, OfferUpdateSerializer, OfferListSerializer, OfferDetailViewSerializer
 
 
 class OfferDetailSerializerTest(TestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password")
         self.offer = Offer.objects.create(title="Test Offer", description="Test", user=self.user)
 
     def test_valid_serializer(self):
@@ -58,7 +58,7 @@ class OfferDetailSerializerTest(TestCase):
 class OfferCreateSerializerTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password")
         self.request = self.factory.post("/")  # simulates POST-Request
         self.request.user = self.user  # add user
 
@@ -87,7 +87,7 @@ class OfferCreateSerializerTest(TestCase):
 
 class OfferUpdateSerializerTest(TestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password")
         self.offer = Offer.objects.create(title="Update Test", description="Update Test", user=self.user)
         self.detail = OfferDetail.objects.create(
             offer=self.offer, title="Basic Package", revisions=1, delivery_time_in_days=3, price=50, features=[], offer_type="basic"
@@ -145,7 +145,7 @@ class OfferUpdateSerializerTest(TestCase):
 class OfferSerializerGetResponseTest(TestCase):  # Tests OfferListSerializer and OfferDetailViewSerializer - GET Response
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password")
         self.offer = Offer.objects.create(title="List Test", description="List Test", user=self.user)
         OfferDetail.objects.create(offer=self.offer, title="Basic", revisions=1, delivery_time_in_days=3, price=50, features=[], offer_type="basic")
         OfferDetail.objects.create(offer=self.offer, title="Standard", revisions=2, delivery_time_in_days=2, price=100, features=[], offer_type="standard")

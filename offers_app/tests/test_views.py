@@ -1,14 +1,14 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 
 from ..models import Offer, OfferDetail
-from user_auth_app.models import CustomUser
 
 
 class OfferViewSetListActionTest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password")
         self.offer = Offer.objects.create(title="Test offer", description="List Test", user=self.user)
         OfferDetail.objects.create(offer=self.offer, title="Basic", revisions=1, delivery_time_in_days=3, price=50, features=[], offer_type="basic")
         OfferDetail.objects.create(offer=self.offer, title="Standard", revisions=2, delivery_time_in_days=2, price=100, features=[], offer_type="standard")
@@ -53,9 +53,9 @@ class OfferViewSetListActionTest(APITestCase):
 
 class OfferViewSetCreateActionTest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password", type="business")
-        self.customer_user = CustomUser.objects.create_user(username="testuser2", password="password", type="customer")
-        self.admin_user = CustomUser.objects.create_superuser(username="adminuser", password="password")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password", type="business")
+        self.customer_user = get_user_model().objects.create_user(username="testuser2", password="password", type="customer")
+        self.admin_user = get_user_model().objects.create_superuser(username="adminuser", password="password")
         self.data = {
             'title': 'Test Offer',
             'description': 'Test Description',
@@ -130,8 +130,8 @@ class OfferViewSetCreateActionTest(APITestCase):
 
 class OfferViewSetUpdateActionTest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password", type="business")
-        self.other_user = CustomUser.objects.create_user(username="second_testuser", password="password", type="business")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password", type="business")
+        self.other_user = get_user_model().objects.create_user(username="second_testuser", password="password", type="business")
         self.offer = Offer.objects.create(title="Test offer", description="List Test", user=self.user)
         self.url = reverse('offer-detail', kwargs={'pk': self.offer.id})
 
@@ -164,7 +164,7 @@ class OfferViewSetUpdateActionTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_offer_update_delete_admin(self):
-        admin_user = CustomUser.objects.create_superuser(username="superuser", password="password")
+        admin_user = get_user_model().objects.create_superuser(username="superuser", password="password")
         self.client.force_authenticate(user=admin_user)
         data = {'title': 'admin test'}
         response = self.client.patch(self.url, data, format='json')
@@ -175,8 +175,8 @@ class OfferViewSetUpdateActionTest(APITestCase):
 
 class OfferDetailDetailViewTest(APITestCase):
     def setUp(self):
-        self.user = CustomUser.objects.create_user(username="testuser", password="password", type="business")
-        self.admin_user = CustomUser.objects.create_superuser(username="admin_user", password="password")
+        self.user = get_user_model().objects.create_user(username="testuser", password="password", type="business")
+        self.admin_user = get_user_model().objects.create_superuser(username="admin_user", password="password")
         self.offer = Offer.objects.create(title="Test offer", description="List Test", user=self.user)
         self.offerdetail = OfferDetail.objects.create(offer=self.offer, title="Basic", revisions=1, delivery_time_in_days=3, price=50, features=[], offer_type="basic")
         self.url = reverse('offerdetails-detail', kwargs={'pk': self.offerdetail.id})
