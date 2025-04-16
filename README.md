@@ -1,58 +1,90 @@
-# 🧠 Coderr Backend
+# Coderr Backend
 
-Das **Coderr Backend** ist das Herzstück der Programmierer-Dienstleistungs-Plattform **Coderr**.  
-Hier können sich **Programmierer:innen (Business User)** und **Kund:innen (Customer User)** registrieren, Angebote erstellen oder suchen, Bestellungen aufgeben, Bewertungen abgeben und ihre Profile verwalten.
+## 📌 Project Description
 
-> 🔗 **Frontend-Repo (folgt)**  
+The **Coderr Backend** powers the developer service platform **Coderr**.  
+It enables **programmers (Business Users)** and **clients (Customer Users)** to register, create and browse offers, place orders, leave reviews, and manage their profiles.
+
+> 🔗 **[Frontend-Repo](https://github.com/Developer-Akademie-Backendkurs/project.Coderr)**
+> 🔗 **[Frontend-LiveTest](https://github.com/Developer-Akademie-Backendkurs/project.Coderr)**
 > 📖 **[API-Dokumentation (Swagger)](https://cdn.developerakademie.com/courses/Backend/EndpointDoku/index.html?name=coderr)**
 
 ---
 
-## 🚀 Features
+## 🛠 Installation & Setup
 
-- 🔐 **Token Authentication**
-- 🛠️ **CRUD** für:
-  - `Offer`
-  - `Order`
-  - `Review`
-- 🔎 **Such- und Filterfunktionen** für Angebote
-- 👤 Benutzer-Registrierung & -Profile für zwei Rollen:
-  - Business User (Programmierer:innen)
-  - Customer User (Auftraggeber:innen)
+### System Requirements
+
+- **Python:** 3.13.1
+- **Django:** 5.1.7
+- **Django REST Framework:** 3.15.2
+
+### Dependencies (from `requirements.txt`)
+
+```
+asgiref==3.8.1
+coverage==7.8.0
+Django==5.1.7
+django-cors-headers==4.7.0
+django-filter==25.1
+djangorestframework==3.15.2
+sqlparse==0.5.3
+tzdata==2025.1
+```
+
+### Installation Steps
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/Anna-Fritz/coderr_backend.git
+   cd JOIN_backend
+   ```
+
+2. Create and activate a virtual environment:
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. Install dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+4. Apply database migrations:
+   ```sh
+   python manage.py migrate
+   ```
+
+5. Start the development server:
+   ```sh
+   python manage.py runserver
+   ```
 
 ---
 
-## 🛠️ Technologien
+## 📂 Database & Migrations
 
-- Python 3.13.1
-- Django 5.1.7
-- Django REST Framework (DRF)
-- SQLite (lokale Entwicklung)
-- Wichtige Libraries:
-  - `django-cors-headers`
-  - `django-filter`
-  - `asgiref`
-  - `sqlparse`
-  - `tzdata`
+- **Database Technology:** SQLite (default, can be switched to PostgreSQL or MySQL if needed).
+- **Run Migrations:**
+  ```sh
+  python manage.py migrate
+  ```
 
 ---
 
-## ⚙️ Installation & Setup
+## 📝 License
 
-```bash
-# 1. Repository klonen
-git clone <repo-url>
-cd coderr-backend
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
 
-# 2. Virtuelle Umgebung erstellen & aktivieren
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+- **Share:** You may copy and redistribute the material in any format or medium.
+- **Adapt:** You may remix, transform, and build upon the material.
+- **Non-Commercial:** You may not use the material for commercial purposes.
 
-# 3. Abhängigkeiten installieren
-pip install -r requirements.txt
+For full details, see the [official license documentation](https://creativecommons.org/licenses/by-nc/4.0/).
 
-# 4. Migrationen durchführen
-python manage.py migrate
+---
 
-# 5. Entwicklungsserver starten
-python manage.py runserver
+## 👩‍💻 Author
+
+Developed and maintained by [Anna](https://github.com/Anna-Fritz).
