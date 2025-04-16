@@ -25,10 +25,10 @@ class UserProfile(models.Model):
     uploaded_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False)
     type = models.CharField(max_length=20, choices=[('customer', 'Customer'), ('business', 'Business')], editable=False, null=False, blank=False)
-    location = models.CharField(max_length=30, blank=True, null=True)
-    tel = models.CharField(max_length=25, blank=True, null=True)
-    description = models.TextField(max_length=250, blank=True, null=True)
-    working_hours = models.CharField(max_length=15, blank=True, null=True)
+    location = models.CharField(max_length=30, blank=True, null=True, default="")
+    tel = models.CharField(max_length=25, blank=True, null=True, default="")
+    description = models.TextField(max_length=250, blank=True, null=True, default="")
+    working_hours = models.CharField(max_length=15, blank=True, null=True, default="")
 
     def save(self, *args, **kwargs):
         """
