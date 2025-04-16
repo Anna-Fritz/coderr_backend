@@ -79,21 +79,21 @@ tzdata==2025.1
 
 To execute the test suite:
 
-```sh
-python manage.py test
-```
+   ```sh
+   python manage.py test
+   ```
 
 To execute the test suite with coverage:
 
-```sh
-coverage run manage.py test
-```
+   ```sh
+   coverage run manage.py test
+   ```
 
 To check the coverage report:
 
-```sh
-coverage report
-```
+   ```sh
+   coverage report
+   ```
 
 ---
 
