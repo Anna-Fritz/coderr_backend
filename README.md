@@ -7,8 +7,8 @@ It enables **programmers (Business Users)** and **clients (Customer Users)** to 
 
 You can explore the application using a **guest login**, available for both user roles.
 
-> 🔗 **[Frontend-Repository (V1.2.0)](https://github.com/Developer-Akademie-Backendkurs/project.Coderr)**
-> 🔗 **[Frontend-LiveTest](https://annafritz.de/coderr/)**
+> 🔗 **[Frontend-Repository (V1.2.0)](https://github.com/Developer-Akademie-Backendkurs/project.Coderr)** <br>
+> 🔗 **[Frontend-LiveTest](https://annafritz.de/coderr/)** <br>
 > 📖 **[API-Dokumentation (Swagger)](https://cdn.developerakademie.com/courses/Backend/EndpointDoku/index.html?name=coderr)**
 
 ---
@@ -99,7 +99,7 @@ coverage report
 📸 Screenshots
 
 <p align="center">
-  <img src="assets/K1600_Screenshot 2025-04-15 153911.JPG" alt="Dashboard View" width="600"/>
+  <img src=".github/assets/K1600_Screenshot 2025-04-15 153911.JPG" alt="Dashboard View" width="600"/>
 </p>
 
 ---
