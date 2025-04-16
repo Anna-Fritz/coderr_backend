@@ -96,13 +96,19 @@ coverage report
 
 ---
 
-📸 Screenshots
+## 📸 Screenshots
 
 <p align="center">
-  <img src=".github/assets/coderr_landing_page.JPG" alt="Dashboard View" width="600"/>
-   <img src=".github/assets/coderr_dashboard.JPG" alt="Dashboard View" width="600"/>
-   <img src=".github/assets/coderr_business_user_profile.JPG" alt="Dashboard View" width="600"/>
-   <img src=".github/assets/coderr_customer_user_profile.JPG" alt="Dashboard View" width="600"/>
+  <img src=".github/coderr_landing_page.JPG" alt="Dashboard View" width="600"/>
+</p>
+<p align="center">
+   <img src=".github/coderr_dashboard.JPG" alt="Dashboard View" width="600"/>
+</p>
+<p align="center">
+   <img src=".github/coderr_business_user_profile.JPG" alt="Dashboard View" width="600"/>
+</p>
+<p align="center">
+   <img src=".github/coderr_customer_user_profile.JPG" alt="Dashboard View" width="600"/>
 </p>
 
 ---
