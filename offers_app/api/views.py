@@ -73,6 +73,16 @@ class OfferViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data)
 
+    def destroy(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({"detail": "Authentication credentials were not provided."}, status=status.HTTP_401_UNAUTHORIZED)
+        instance = self.get_object()
+        if not ((request.user == instance.user and request.user.type == "business") or request.user.is_superuser):
+            return Response({"detail": "You do not have permission to delete this offer."},
+                            status=status.HTTP_403_FORBIDDEN)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class OfferDetailDetailView(generics.RetrieveAPIView):
     """
