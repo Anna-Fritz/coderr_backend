@@ -75,7 +75,8 @@ tzdata==2025.1
 
 ---
 
-🧪 Running Tests
+## 🧪 Running Tests
+
 To execute the test suite:
 
 ```sh
