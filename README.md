@@ -3,10 +3,12 @@
 ## 📌 Project Description
 
 The **Coderr Backend** powers the developer service platform **Coderr**.  
-It enables **programmers (Business Users)** and **clients (Customer Users)** to register, create and browse offers, place orders, leave reviews, and manage their profiles.
+It enables **programmers (Business Users)** and **clients (Customer Users)** to register, create and browse offers, place orders, leave reviews, and manage their profiles. 
 
-> 🔗 **[Frontend-Repo](https://github.com/Developer-Akademie-Backendkurs/project.Coderr)**
-> 🔗 **[Frontend-LiveTest](https://github.com/Developer-Akademie-Backendkurs/project.Coderr)**
+You can explore the application using a **guest login**, available for both user roles.
+
+> 🔗 **[Frontend-Repository (V1.2.0)](https://github.com/Developer-Akademie-Backendkurs/project.Coderr)**
+> 🔗 **[Frontend-LiveTest](https://annafritz.de/coderr/)**
 > 📖 **[API-Dokumentation (Swagger)](https://cdn.developerakademie.com/courses/Backend/EndpointDoku/index.html?name=coderr)**
 
 ---
@@ -37,7 +39,7 @@ tzdata==2025.1
 1. Clone the repository:
    ```sh
    git clone https://github.com/Anna-Fritz/coderr_backend.git
-   cd JOIN_backend
+   cd coderr_backend
    ```
 
 2. Create and activate a virtual environment:
@@ -70,6 +72,35 @@ tzdata==2025.1
   ```sh
   python manage.py migrate
   ```
+
+---
+
+🧪 Running Tests
+To execute the test suite:
+
+```sh
+python manage.py test
+```
+
+To execute the test suite with coverage:
+
+```sh
+coverage run manage.py test
+```
+
+To check the coverage report:
+
+```sh
+coverage report
+```
+
+---
+
+📸 Screenshots
+
+<p align="center">
+  <img src="assets/K1600_Screenshot 2025-04-15 153911.JPG" alt="Dashboard View" width="600"/>
+</p>
 
 ---
 
