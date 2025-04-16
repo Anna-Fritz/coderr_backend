@@ -75,31 +75,41 @@ tzdata==2025.1
 
 ---
 
-🧪 Running Tests
+## 🧪 Running Tests
+
 To execute the test suite:
 
-```sh
-python manage.py test
-```
+   ```sh
+   python manage.py test
+   ```
 
 To execute the test suite with coverage:
 
-```sh
-coverage run manage.py test
-```
+   ```sh
+   coverage run manage.py test
+   ```
 
 To check the coverage report:
 
-```sh
-coverage report
-```
+   ```sh
+   coverage report
+   ```
 
 ---
 
-📸 Screenshots
+## 📸 Screenshots
 
 <p align="center">
-  <img src=".github/assets/K1600_Screenshot 2025-04-15 153911.JPG" alt="Dashboard View" width="600"/>
+  <img src=".github/coderr_landing_page.JPG" alt="Dashboard View" width="600"/>
+</p>
+<p align="center">
+   <img src=".github/coderr_dashboard.JPG" alt="Dashboard View" width="600"/>
+</p>
+<p align="center">
+   <img src=".github/coderr_business_user_profile.JPG" alt="Dashboard View" width="600"/>
+</p>
+<p align="center">
+   <img src=".github/coderr_customer_user_profile.JPG" alt="Dashboard View" width="600"/>
 </p>
 
 ---
