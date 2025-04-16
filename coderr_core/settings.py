@@ -68,11 +68,13 @@ MIDDLEWARE = [
 CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:5500',
     'http://localhost:5500',
+    'https://annafritz.de/coderr'
 ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5500',
     'http://localhost:5500',
+    'https://annafritz.de/coderr'
 ]
 
 ROOT_URLCONF = 'coderr_core.urls'

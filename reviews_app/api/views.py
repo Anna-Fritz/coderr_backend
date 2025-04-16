@@ -22,7 +22,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['business_user_id', 'reviewer_id']
     ordering_fields = ['updated_at', 'rating']
-    ordering = ['updated_at']
+    ordering = ['-updated_at']
 
     def update(self, request, *args, **kwargs):
         """
