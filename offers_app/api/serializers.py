@@ -30,7 +30,7 @@ class OfferDetailUpdateSerializer(serializers.ModelSerializer):
     Serializer for updating an `OfferDetail` instance. It allows the user to modify the fields 
     of an existing `OfferDetail` object.
     """
-    id = serializers.IntegerField()
+    # id = serializers.IntegerField()
 
     class Meta:
         model = OfferDetail
@@ -106,13 +106,14 @@ class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
 
     def validate_details(self, value):
         """Ensure that the details reference valid OfferDetail instances."""
+        offer_id = self.instance.id if self.instance else None
         for detail in value:
-            detail_id = detail.get('id')
-            if detail_id:
-                if not OfferDetail.objects.filter(id=detail_id).exists():
-                    raise serializers.ValidationError(f"OfferDetail with id {detail_id} does not exist.")
+            detail_offer_type = detail.get('offer_type')
+            if detail_offer_type:
+                if not OfferDetail.objects.filter(offer=offer_id, offer_type=detail_offer_type).exists():
+                    raise serializers.ValidationError({"details": "OfferDetail does not exist."})
             else:
-                raise serializers.ValidationError("ID for OfferDetail must be provided.")
+                raise serializers.ValidationError({"details": "Offer_type for OfferDetail must be provided."})
         return value
 
     def update(self, instance, validated_data):
@@ -129,10 +130,10 @@ class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
 
         if details_data:
             for detail_data in details_data:
-                detail_id = detail_data.get('id', None)
-                if detail_id:
+                detail_offer_type = detail_data.get('offer_type', None)
+                if detail_offer_type:
                     try:
-                        detail_instance = OfferDetail.objects.get(id=detail_id)
+                        detail_instance = OfferDetail.objects.get(offer=instance, offer_type=detail_offer_type)
                         detail_instance.title = detail_data.get('title')
                         detail_instance.revisions = detail_data.get('revisions')
                         detail_instance.delivery_time_in_days = detail_data.get('delivery_time_in_days')
@@ -140,9 +141,9 @@ class OfferUpdateSerializer(serializers.ModelSerializer):   # PUT / PATCH
                         detail_instance.features = detail_data.get('features')
                         detail_instance.save()
                     except OfferDetail.DoesNotExist:
-                        raise serializers.ValidationError(f"OfferDetail with id {detail_id} does not exist.")
+                        raise serializers.ValidationError({"details": "OfferDetail does not exist."})
                 else:
-                    raise serializers.ValidationError("ID for OfferDetail must be provided.")
+                    raise serializers.ValidationError({"details": "Offer_type for OfferDetail must be provided."})
         return instance
 
 
